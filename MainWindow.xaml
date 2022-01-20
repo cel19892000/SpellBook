@@ -79,17 +79,34 @@
 
             </Grid>
 
-            <StackPanel Grid.Row="2" Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Bottom">
-                <StackPanel Orientation="Horizontal">
-                    <Label 
-                           FontFamily="/Fonts/#Kalam" 
-                           Foreground="AntiqueWhite"
-                           FontSize="18"
-                           >SpellBook Filters</Label>
-                </StackPanel>
-                <WrapPanel x:Name="FilterButtonPanel"></WrapPanel>
+            <Grid Grid.Row="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="1*"/>
+                </Grid.RowDefinitions>
 
-            </StackPanel>
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="160"/>
+                        <ColumnDefinition Width="80"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Label 
+                        FontFamily="/Fonts/#Kalam" 
+                        Foreground="AntiqueWhite"
+                        FontSize="18"
+                        Grid.Column="0"
+                        >SpellBook Filters</Label>
+                    
+                    <TextBox x:Name="SpellSearchBox" Grid.Column="1" Height="20" KeyDown="OnKeyDownSpellSearch"></TextBox>
+                    <Button x:Name="SpellSearchButton" Grid.Column="2" Width="60" Height="20" Click="SpellSearchButton_Click">Search</Button>
+                    
+                </Grid>
+                
+                <WrapPanel x:Name="FilterButtonPanel" Grid.Row="1" VerticalAlignment="Bottom"></WrapPanel>
+
+            </Grid>
 
         </Grid>
 

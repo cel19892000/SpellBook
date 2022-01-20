@@ -8,6 +8,7 @@ using System.Windows.Media.Imaging;
 using HtmlAgilityPack;
 using System.IO;
 using System.Globalization;
+using System.Windows.Input;
 
 namespace SpellBook
 {
@@ -17,6 +18,7 @@ namespace SpellBook
     /// To Do List
     /// Spell Entry Graphics
     /// Edit Spell Button Functions
+    /// duplicate spell entry
     public partial class MainWindow : Window
     {
         public MainWindow()
@@ -433,8 +435,6 @@ namespace SpellBook
         private void AddSpellButton_Click(object sender, RoutedEventArgs e)
         {
             addSpellGrid.Visibility = Visibility.Visible;
-
-
         }
 
         private void SpellCancelBtn_Click(object sender, RoutedEventArgs e)
@@ -519,6 +519,29 @@ namespace SpellBook
 
             writer.Serialize(file, profileURL);
             file.Close();
+        }
+
+        private void SpellSearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            FilterSpellsByName();
+        }
+        private void OnKeyDownSpellSearch(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Return)
+            {
+                FilterSpellsByName();
+            }
+        }
+
+        private void FilterSpellsByName()
+        {
+            spellBookPanel.Children.Clear();
+            RefreshHtmlDoc();
+            for (int i = 0; i < SpellList.Count; i++)
+            {
+                if (SpellList[i].name.Contains(SpellSearchBox.Text, StringComparison.OrdinalIgnoreCase))
+                    AddNewSpellPanel(i);
+            }
         }
 
     }
