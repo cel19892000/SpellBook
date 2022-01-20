@@ -17,7 +17,6 @@ namespace SpellBook
     /// </summary>
     /// To Do List
     /// Spell Entry Graphics
-    /// stop duplicate spell entry
     public partial class MainWindow : Window
     {
         public MainWindow()
@@ -423,12 +422,20 @@ namespace SpellBook
                 movements = spellMovementsEntry.Text
             };
 
-            SpellList.Add(newSpell);
-            SaveSpellList();
-            ClearSpellEntry();
-            addSpellGrid.Visibility = Visibility.Collapsed;
-            SetFilterButtons();
-            DisplayFullSpellList();
+            if (!SpellExistsAlready(newSpell.name))
+            {
+                SpellList.Add(newSpell);
+                SaveSpellList();
+                ClearSpellEntry();
+                addSpellGrid.Visibility = Visibility.Collapsed;
+                SetFilterButtons();
+                FilterSpellsByName(newSpell.name);
+            }
+            else
+            {
+                MessageBox.Show(Application.Current.MainWindow, "Spell Already Exists", "Add Spell Failure", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
         }
 
         private void AddSpellButton_Click(object sender, RoutedEventArgs e)
@@ -551,6 +558,16 @@ namespace SpellBook
                     return i;
             }
             return 9999;
+        }
+
+        public bool SpellExistsAlready(string spellName)
+        {
+            for (int i = 0; i < SpellList.Count; i++)
+            {
+                if (SpellList[i].name.Equals(spellName, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+            return false;
         }
 
         public void DisplayEditableSpell(string searchedSpell)
