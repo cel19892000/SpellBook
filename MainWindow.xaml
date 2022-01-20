@@ -25,7 +25,7 @@
 
             <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center">
                 <Button Width="150" Click="AddSpellButton_Click">Add Spell</Button>
-                <Button Width="150">Edit Spell</Button>
+                <Button Width="150" Click="EditSpellButton_Click">Edit Spell</Button>
                 <Button Width="150" Click="AddPlayerButton_Click">Edit Player</Button>
                 <Button Width="150" Click="Refresh_Button_Click">Refresh Player</Button>
             </StackPanel>
@@ -177,6 +177,45 @@
                 <Button x:Name="playerSubmitBtn" Width="200" Margin="20,2,2,8" Click="PlayerSubmitBtn_Click">Submit</Button>
             </StackPanel>
             
+        </Grid>
+
+        <Grid x:Name="editSpellGrid" Grid.Row="0" Background="AntiqueWhite" Grid.RowSpan="2" Margin="60" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="6*"/>
+                <RowDefinition Height="50*"/>
+                <RowDefinition Height="7*"/>
+            </Grid.RowDefinitions>
+
+            <Label Grid.Row="0" HorizontalAlignment="Center" FontSize="20">Edit Spell</Label>
+            
+            <StackPanel Grid.Row="1">
+
+                <Label FontSize="20" HorizontalAlignment="Center">Step 1: Select Spell</Label>
+                <TextBox x:Name="editSpellSearchBox" FontSize="20"></TextBox>
+                <Button x:Name="EditSpellSearchButton" Click="EditSpellSearchButton_Click">Search</Button>
+
+                <Label FontSize="20" HorizontalAlignment="Center">Step 2: Make Changes</Label>
+                <Label>Spell Name</Label>
+                <TextBox x:Name="editSpellNameBox">No Spell Selected</TextBox>
+                <Label>Spell Type</Label>
+                <TextBox x:Name="editSpellTypeBox"></TextBox>
+                <Label>Spell Movements</Label>
+                <TextBox x:Name="editSpellMovementsBox"></TextBox>
+                <Label>Spell Description</Label>
+                <TextBox x:Name="editSpellDescriptionBox"></TextBox>
+                <StackPanel Orientation="Horizontal">
+                    <Label>Spell Identifier</Label>
+                    <Label x:Name="editSpellIDLbl">9999</Label>
+                </StackPanel>
+                
+
+            </StackPanel>
+
+            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Width="200" Margin="2,2,20,8" Click="EditSpellCancelButton_Click">Cancel</Button>
+                <Button Width="200" Margin="20,2,2,8" Click="EditSpellSaveButton_Click">Save</Button>
+            </StackPanel>
+
         </Grid>
 
     </Grid>

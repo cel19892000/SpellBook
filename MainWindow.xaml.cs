@@ -17,8 +17,7 @@ namespace SpellBook
     /// </summary>
     /// To Do List
     /// Spell Entry Graphics
-    /// Edit Spell Button Functions
-    /// duplicate spell entry
+    /// stop duplicate spell entry
     public partial class MainWindow : Window
     {
         public MainWindow()
@@ -523,26 +522,111 @@ namespace SpellBook
 
         private void SpellSearchButton_Click(object sender, RoutedEventArgs e)
         {
-            FilterSpellsByName();
+            FilterSpellsByName(SpellSearchBox.Text);
         }
         private void OnKeyDownSpellSearch(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Return)
             {
-                FilterSpellsByName();
+                FilterSpellsByName(SpellSearchBox.Text);
             }
         }
 
-        private void FilterSpellsByName()
+        private void FilterSpellsByName(string spellName)
         {
             spellBookPanel.Children.Clear();
             RefreshHtmlDoc();
             for (int i = 0; i < SpellList.Count; i++)
             {
-                if (SpellList[i].name.Contains(SpellSearchBox.Text, StringComparison.OrdinalIgnoreCase))
+                if (SpellList[i].name.Contains(spellName, StringComparison.OrdinalIgnoreCase))
                     AddNewSpellPanel(i);
             }
         }
 
+        public int SelectFirstMatchingSpellID(string searchedSpell)
+        {
+            for (int i = 0; i < SpellList.Count; i++)
+            {
+                if (SpellList[i].name.Contains(searchedSpell, StringComparison.OrdinalIgnoreCase))
+                    return i;
+            }
+            return 9999;
+        }
+
+        public void DisplayEditableSpell(string searchedSpell)
+        {
+            int spellID = SelectFirstMatchingSpellID(searchedSpell);
+
+            if (spellID != 9999)
+            {
+                editSpellNameBox.Text = SpellList[spellID].name;
+                editSpellTypeBox.Text = SpellList[spellID].type;
+                editSpellMovementsBox.Text = SpellList[spellID].movements;
+                editSpellDescriptionBox.Text = SpellList[spellID].description;
+                editSpellIDLbl.Content = spellID;
+            }
+            else
+            {
+                editSpellNameBox.Text = "Spell Not Found";
+                editSpellTypeBox.Text = "";
+                editSpellMovementsBox.Text = "";
+                editSpellDescriptionBox.Text = "";
+                editSpellIDLbl.Content = spellID;
+            }
+        }
+
+        private void EditSpellSearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            DisplayEditableSpell(editSpellSearchBox.Text);
+        }
+
+        private void EditSpellButton_Click(object sender, RoutedEventArgs e)
+        {
+            editSpellGrid.Visibility = Visibility.Visible;
+        }
+
+        private void EditSpellCancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            ResetEditSpellGrid();
+            editSpellGrid.Visibility = Visibility.Collapsed;
+        }
+
+        private void ResetEditSpellGrid()
+        {
+            editSpellNameBox.Text = "No Spell Selected";
+            editSpellTypeBox.Text = "";
+            editSpellMovementsBox.Text = "";
+            editSpellDescriptionBox.Text = "";
+            editSpellIDLbl.Content = "9999";
+        }
+
+        private void EditSpellSaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            int spellID = Convert.ToInt32(editSpellIDLbl.Content);
+            if (spellID != 9999)
+            {
+                Spell editedSpell = GatherSelectedSpell();
+                OverwriteSpell(editedSpell, spellID);
+                ResetEditSpellGrid();
+                editSpellGrid.Visibility = Visibility.Collapsed;
+                FilterSpellsByName(editedSpell.name);
+            }
+            else
+            {
+                MessageBox.Show(Application.Current.MainWindow, "No Spell Selected", "Overwrite Failure", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+        }
+
+        private Spell GatherSelectedSpell()
+        {
+            Spell gatheredSpell = new Spell(editSpellNameBox.Text, editSpellDescriptionBox.Text, editSpellTypeBox.Text, editSpellMovementsBox.Text);
+            return gatheredSpell;
+        }
+
+        private void OverwriteSpell(Spell editedSpell, int spellID)
+        {
+            SpellList[spellID] = editedSpell;
+        }
     }
 }
