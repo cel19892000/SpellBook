@@ -234,13 +234,18 @@ namespace SpellBook
             string url = profileURL;
             var web = new HtmlAgilityPack.HtmlWeb();
 
+            System.Diagnostics.Debug.WriteLine(url);
+
             try
             {
+                System.Diagnostics.Debug.WriteLine("Try Load");
                 doc = web.Load(url);
                 SaveSpellData();
+                System.Diagnostics.Debug.WriteLine("Saved");
             }
             catch
             {
+                System.Diagnostics.Debug.WriteLine("Try Failed");
                 LoadSpellData();
             }
         }
@@ -340,6 +345,8 @@ namespace SpellBook
             if (!info.Exists)
                 info.Create();
             var path2 = System.IO.Path.Combine(path, "SpellData.html");
+
+
 
             FileStream sw = new FileStream(path2, FileMode.Create);
             doc.Save(sw);
@@ -450,9 +457,15 @@ namespace SpellBook
         private void PlayerSubmitBtn_Click(object sender, RoutedEventArgs e)
         {
             profileURL = playerUrlEntry.Text;
+            System.Diagnostics.Debug.WriteLine(profileURL);
             SavePlayer();
+            System.Diagnostics.Debug.WriteLine(profileURL);
             addPlayerGrid.Visibility = Visibility.Collapsed;
+            RefreshHtmlDoc();
             RefreshPlayerData();
+            DisplayFullSpellList();
+            System.Diagnostics.Debug.WriteLine(profileURL);
+            
         }
         private void PlayerCancelBtn_Click(object sender, RoutedEventArgs e)
         {
@@ -462,18 +475,21 @@ namespace SpellBook
         public void LoadPlayer()
         {
             string path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SpellBook");
-            var path2 = System.IO.Path.Combine(path, "PlayerUrl.xml");
+            var path2 = System.IO.Path.Combine(path, "Player.xml");
 
             if (File.Exists(path2))
             {
+                System.Diagnostics.Debug.WriteLine("File Exists");
                 System.Xml.Serialization.XmlSerializer reader =
                 new System.Xml.Serialization.XmlSerializer(typeof(string));
                 System.IO.StreamReader file = new System.IO.StreamReader(path2);
                 profileURL = (string)reader.Deserialize(file);
                 file.Close();
+                SavePlayer();
             }
             else
             {
+                System.Diagnostics.Debug.WriteLine("File Does Not Exist");
                 DefaultPlayer();
             }
 
