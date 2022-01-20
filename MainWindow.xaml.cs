@@ -7,6 +7,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using HtmlAgilityPack;
 using System.IO;
+using System.Globalization;
 
 namespace SpellBook
 {
@@ -177,9 +178,10 @@ namespace SpellBook
             };
             spBottom.Children.Add(Lb_White_Width(thisSpell.type, 120, new Thickness(8, 2, 0, 8), HorizontalAlignment.Left));
             spBottom.Children.Add(Lb_White_Width(thisSpellData.level, 160, new Thickness(0, 2, 0, 8), HorizontalAlignment.Right));
+            double percentage = Convert.ToDouble(thisSpellData.percentage, new CultureInfo("en-US"));
             ProgressBar pbProgress = new ProgressBar
             {
-                Value = Convert.ToDouble(thisSpellData.percentage),
+                Value = percentage,
                 Width = 260,
                 Height = 16,
                 Margin = new Thickness(0, 0, 0, 6)
