@@ -23,12 +23,14 @@ namespace SpellBook
         {
             InitializeComponent();
             LoadPlayer();
-            LoadSpellList();
+            SpellList = sm.LoadSpellList();
             SetFilterButtons();
             DisplayFullSpellList();
-            SaveSpellList();
+            sm.SaveSpellList(SpellList);
             RefreshPlayerData();
         }
+
+        readonly SaveManager sm = new SaveManager();
 
         public List<Spell> SpellList = new List<Spell>();
 
@@ -107,24 +109,6 @@ namespace SpellBook
             DisplayFilteredSpellList(content);
         }
 
-        public class Spell
-        {
-            public string name;
-            public string description;
-            public string type;
-            public string movements;
-
-            public Spell() { }
-
-            public Spell(string spellName, string spellDescription, string spellType, string spellMovements)
-            {
-                name = spellName;
-                description = spellDescription;
-                type = spellType;
-                movements = spellMovements;
-            }
-        }
-
         public void DisplayFullSpellList()
         {
             spellBookPanel.Children.Clear();
@@ -147,7 +131,7 @@ namespace SpellBook
         public void AddNewSpellPanel(int i)
         {
             Spell thisSpell = SpellList[i];
-            SpellData thisSpellData = GetSpellData(thisSpell.name);
+            SpellProgress thisSpellData = new SpellProgress(thisSpell.name, doc);
             
             StackPanel sp = new StackPanel
             {
@@ -231,186 +215,32 @@ namespace SpellBook
             return bitmapImage;
         }
 
-        private void RefreshHtmlDoc()
+        public void RefreshHtmlDoc()
         {
-            string url = profileURL;
-            var web = new HtmlAgilityPack.HtmlWeb();
-
-            System.Diagnostics.Debug.WriteLine(url);
-
             try
             {
-                System.Diagnostics.Debug.WriteLine("Try Load");
-                doc = web.Load(url);
-                SaveSpellData();
-                System.Diagnostics.Debug.WriteLine("Saved");
+                doc = sm.ImportSpellData();
+                sm.SaveSpellData(doc);
             }
             catch
             {
-                System.Diagnostics.Debug.WriteLine("Try Failed");
-                LoadSpellData();
-            }
-        }
-
-        struct SpellData
-        {
-            public string percentage;
-            public string level;
-        }
-
-        private SpellData GetSpellData(string spellName)
-        {
-            SpellData spell = new SpellData
-            {
-                percentage = "0",
-                level = "0"
-            };
-
-            int knownSpellCount = doc.DocumentNode.SelectNodes("//table[@id='spell-data'][1]//tbody//tr").Count;
-
-            for (int i = 1; i <= knownSpellCount; i++)
-            {
-                string spellID = doc.DocumentNode.SelectSingleNode("//*[@id=\"spell-data\"]/tbody/tr[" + i + "]/th").InnerText;
-
-                //System.Diagnostics.Debug.WriteLine("checking comparison of " + spellID + " and " + spellName);
-
-                if (String.Equals(spellID, spellName, StringComparison.OrdinalIgnoreCase))
-                {
-                    spell.percentage = doc.DocumentNode
-                        .SelectSingleNode("//*[@id=\"spell-data\"]/tbody/tr[" + i + "]/td/div")
-                        .Attributes["data-percent"].Value;
-                    spell.level = doc.DocumentNode
-                        .SelectSingleNode("//*[@id=\"spell-data\"]/tbody/tr[" + i + "]/td/div")
-                        .Attributes["data-content"].Value;
-
-                    return spell;
-                }
-            }
-
-            return spell;
-        }
-
-        public void SaveSpellList()
-        {
-            string path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SpellBook");
-            DirectoryInfo info = new DirectoryInfo(path);
-            if (!info.Exists)
-                info.Create();
-
-            System.Xml.Serialization.XmlSerializer writer =
-            new System.Xml.Serialization.XmlSerializer(typeof(List<Spell>));
-
-            var path2 = System.IO.Path.Combine(path, "SpellList.xml");
-            System.IO.FileStream file = System.IO.File.Create(path2);
-
-            writer.Serialize(file, SpellList);
-            file.Close();
-        }
-
-        public void LoadSpellList()
-        {
-            string path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SpellBook");
-            var path2 = System.IO.Path.Combine(path, "SpellList.xml");
-
-            if (File.Exists(path2))
-            {
-                System.Xml.Serialization.XmlSerializer reader =
-                new System.Xml.Serialization.XmlSerializer(typeof(List<Spell>));
-                System.IO.StreamReader file = new System.IO.StreamReader(path2);
-                SpellList = (List<Spell>)reader.Deserialize(file);
-                file.Close();
-            }
-            else
-            {
-                StartUpSpellList();
-            }    
-        }
-
-        public void StartUpSpellList()
-        {
-            string[] spellNames = { "Lumos"};
-            string[] spellTypes = { "Charm"};
-            string[] spellMovements = { "Up"};
-            string[] spellDescriptions = { "Casts light around the player"};
-            
-            for (int i = 0; i < spellNames.Length; i++)
-            {
-                Spell newSpell = new Spell(spellNames[i], spellDescriptions[i], spellTypes[i], spellMovements[i]);
-                SpellList.Add(newSpell);
-            }
-        }
-
-        public void SaveSpellData()
-        {
-            string path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SpellBook");
-            DirectoryInfo info = new DirectoryInfo(path);
-            if (!info.Exists)
-                info.Create();
-            var path2 = System.IO.Path.Combine(path, "SpellData.html");
-
-
-
-            FileStream sw = new FileStream(path2, FileMode.Create);
-            doc.Save(sw);
-            sw.Close();
-        }
-
-        public void LoadSpellData()
-        {
-            string path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SpellBook");
-            var path2 = System.IO.Path.Combine(path, "SpellData.html");
-
-            if (File.Exists(path2))
-            {
-                FileStream sw = new FileStream(path2, FileMode.Open);
-                doc.Load(sw);
-                sw.Close();
+                doc = sm.LoadSpellData();
             }
         }
 
         public void RefreshPlayerData()
         {
-            PlayerData player = GetPlayerData();
-
+            PlayerData player = new PlayerData(doc);
             nameLbl.Content = player.name;
             yearLbl.Content = player.year;
             houseLbl.Content = player.house;
             pointsLbl.Content = player.housePoints;
-
-        }
-
-        struct PlayerData
-        {
-            public string name;
-            public string year;
-            public string house;
-            public string housePoints;
-        }
-
-        private PlayerData GetPlayerData()
-        {
-            PlayerData data = new PlayerData
-            {
-                name = "0",
-                year = "0",
-                house = "0",
-                housePoints = "0"
-            };
-
-            data.name = doc.DocumentNode.SelectSingleNode("//*[@class=\"ui segments\"]/div[1]/h2/text()").InnerText;
-            data.year = doc.DocumentNode.SelectSingleNode("//*[@class=\"ui segments\"]/div[2]/div[3]/div").InnerText;
-            data.house = doc.DocumentNode.SelectSingleNode("//*[@class=\"ui segments\"]/div[2]/div[2]/div").InnerText;
-            data.housePoints = doc.DocumentNode.SelectSingleNode("//*[@id=\"user-data\"]/tbody/tr[4]/td").InnerText;
-
-            return data;
         }
 
         private void Refresh_Button_Click(object sender, RoutedEventArgs e)
         {
             RefreshPlayerData();
         }
-
-
 
         private void SpellSubmitBtn_Click(object sender, RoutedEventArgs e)
         {
@@ -425,7 +255,7 @@ namespace SpellBook
             if (!SpellExistsAlready(newSpell.name))
             {
                 SpellList.Add(newSpell);
-                SaveSpellList();
+                sm.SaveSpellList(SpellList);
                 ClearSpellEntry();
                 addSpellGrid.Visibility = Visibility.Collapsed;
                 SetFilterButtons();
@@ -466,7 +296,7 @@ namespace SpellBook
         {
             profileURL = playerUrlEntry.Text;
             System.Diagnostics.Debug.WriteLine(profileURL);
-            SavePlayer();
+            sm.SavePlayer(profileURL);
             System.Diagnostics.Debug.WriteLine(profileURL);
             addPlayerGrid.Visibility = Visibility.Collapsed;
             RefreshHtmlDoc();
@@ -482,49 +312,9 @@ namespace SpellBook
 
         public void LoadPlayer()
         {
-            string path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SpellBook");
-            var path2 = System.IO.Path.Combine(path, "Player.xml");
-
-            if (File.Exists(path2))
-            {
-                System.Diagnostics.Debug.WriteLine("File Exists");
-                System.Xml.Serialization.XmlSerializer reader =
-                new System.Xml.Serialization.XmlSerializer(typeof(string));
-                System.IO.StreamReader file = new System.IO.StreamReader(path2);
-                profileURL = (string)reader.Deserialize(file);
-                file.Close();
-                SavePlayer();
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine("File Does Not Exist");
-                DefaultPlayer();
-            }
-
+            profileURL = sm.LoadPlayer();
+            sm.SavePlayer(profileURL);
             RefreshHtmlDoc();
-        }
-
-        public void DefaultPlayer()
-        {
-            profileURL = "http://profile.knockturnmc.com/player/49f1ee42-854c-45cb-bc6b-e307ed0bc8e7";
-            SavePlayer();
-        }
-
-        public void SavePlayer()
-        {
-            string path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SpellBook");
-            DirectoryInfo info = new DirectoryInfo(path);
-            if (!info.Exists)
-                info.Create();
-
-            System.Xml.Serialization.XmlSerializer writer =
-            new System.Xml.Serialization.XmlSerializer(typeof(string));
-
-            var path2 = System.IO.Path.Combine(path, "Player.xml");
-            System.IO.FileStream file = System.IO.File.Create(path2);
-
-            writer.Serialize(file, profileURL);
-            file.Close();
         }
 
         private void SpellSearchButton_Click(object sender, RoutedEventArgs e)
@@ -576,19 +366,11 @@ namespace SpellBook
 
             if (spellID != 9999)
             {
-                editSpellNameBox.Text = SpellList[spellID].name;
-                editSpellTypeBox.Text = SpellList[spellID].type;
-                editSpellMovementsBox.Text = SpellList[spellID].movements;
-                editSpellDescriptionBox.Text = SpellList[spellID].description;
-                editSpellIDLbl.Content = spellID;
+                EditSpellBoxes(SpellList[spellID].name, SpellList[spellID].type, SpellList[spellID].movements, SpellList[spellID].description, spellID);
             }
             else
             {
-                editSpellNameBox.Text = "Spell Not Found";
-                editSpellTypeBox.Text = "";
-                editSpellMovementsBox.Text = "";
-                editSpellDescriptionBox.Text = "";
-                editSpellIDLbl.Content = spellID;
+                EditSpellBoxes("Spell Not Found", "", "", "", 9999);
             }
         }
 
@@ -604,17 +386,17 @@ namespace SpellBook
 
         private void EditSpellCancelButton_Click(object sender, RoutedEventArgs e)
         {
-            ResetEditSpellGrid();
+            EditSpellBoxes("No Spell Selected", "", "", "", 9999);
             editSpellGrid.Visibility = Visibility.Collapsed;
         }
 
-        private void ResetEditSpellGrid()
+        private void EditSpellBoxes(string name, string type, string movements, string description, int id)
         {
-            editSpellNameBox.Text = "No Spell Selected";
-            editSpellTypeBox.Text = "";
-            editSpellMovementsBox.Text = "";
-            editSpellDescriptionBox.Text = "";
-            editSpellIDLbl.Content = "9999";
+            editSpellNameBox.Text = name;
+            editSpellTypeBox.Text = type;
+            editSpellMovementsBox.Text = movements;
+            editSpellDescriptionBox.Text = description;
+            editSpellIDLbl.Content = id;
         }
 
         private void EditSpellSaveButton_Click(object sender, RoutedEventArgs e)
@@ -624,7 +406,7 @@ namespace SpellBook
             {
                 Spell editedSpell = GatherSelectedSpell();
                 OverwriteSpell(editedSpell, spellID);
-                ResetEditSpellGrid();
+                EditSpellBoxes("No Spell Selected", "", "", "", 9999);
                 editSpellGrid.Visibility = Visibility.Collapsed;
                 FilterSpellsByName(editedSpell.name);
             }
