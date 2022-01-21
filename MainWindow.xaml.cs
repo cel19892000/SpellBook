@@ -36,6 +36,7 @@ namespace SpellBook
 
         public string profileURL;
         public HtmlDocument doc;
+        public string lastPrimaryFilterPressed;
 
         public void SetFilterButtons()
         {
@@ -49,7 +50,11 @@ namespace SpellBook
 
             List<string> originalTypeList = new List<string>();
             for (int i = 0; i < SpellList.Count; i++)
-                originalTypeList.Add(SpellList[i].type);
+            {
+                string type = new SpellType(SpellList[i].type).primary;
+                originalTypeList.Add(type);
+            }
+                
             List<string> consolidatedTypeList = originalTypeList.Distinct().ToList();
 
             foreach (string a in consolidatedTypeList)
@@ -62,6 +67,32 @@ namespace SpellBook
                 FilterButtonPanel.Children.Add(btn);
             }
 
+        }
+
+        public void SetSecondaryFilterButtons(string primary)
+        {
+            SecondaryFilterButtonPanel.Children.Clear();
+
+            List<string> originalTypeList = new List<string>();
+            for (int i = 0; i < SpellList.Count; i++)
+            {
+                string primaryType = new SpellType(SpellList[i].type).primary;
+                string type = new SpellType(SpellList[i].type).secondary;
+                if (type != null && primary.Equals(primaryType))
+                    originalTypeList.Add(type);
+            }
+
+            List<string> consolidatedTypeList = originalTypeList.Distinct().ToList();
+
+            foreach (string a in consolidatedTypeList)
+            {
+                Button btn = NewFilterButton(a);
+                btn.Click += (sender, e) =>
+                {
+                    SecondaryFilterButton_Click(sender, e);
+                };
+                SecondaryFilterButtonPanel.Children.Add(btn);
+            }
         }
 
         public Button NewFilterButton(string name)
@@ -103,30 +134,7 @@ namespace SpellBook
 
         }
 
-        private void FilterButton_Click(object sender, RoutedEventArgs e)
-        {
-            string content = (sender as Button).Content.ToString();
-            DisplayFilteredSpellList(content);
-        }
-
-        public void DisplayFullSpellList()
-        {
-            spellBookPanel.Children.Clear();
-            RefreshHtmlDoc();
-            for (int i = 0; i < SpellList.Count; i++)
-                AddNewSpellPanel(i);
-        }
-
-        public void DisplayFilteredSpellList(string filter)
-        {
-            spellBookPanel.Children.Clear();
-            RefreshHtmlDoc();
-            for (int i = 0; i < SpellList.Count; i++)
-            {
-                if (SpellList[i].type == filter)
-                    AddNewSpellPanel(i);
-            }
-        }
+        
         
         public void AddNewSpellPanel(int i)
         {
@@ -237,10 +245,7 @@ namespace SpellBook
             pointsLbl.Content = player.housePoints;
         }
 
-        private void Refresh_Button_Click(object sender, RoutedEventArgs e)
-        {
-            RefreshPlayerData();
-        }
+        private void Refresh_Button_Click(object sender, RoutedEventArgs e) => RefreshPlayerData();
 
         private void SpellSubmitBtn_Click(object sender, RoutedEventArgs e)
         {
@@ -268,10 +273,7 @@ namespace SpellBook
 
         }
 
-        private void AddSpellButton_Click(object sender, RoutedEventArgs e)
-        {
-            addSpellGrid.Visibility = Visibility.Visible;
-        }
+        private void AddSpellButton_Click(object sender, RoutedEventArgs e) => addSpellGrid.Visibility = Visibility.Visible;
 
         private void SpellCancelBtn_Click(object sender, RoutedEventArgs e)
         {
@@ -287,10 +289,7 @@ namespace SpellBook
             spellDescriptionEntry.Text = "";
         }
 
-        private void AddPlayerButton_Click(object sender, RoutedEventArgs e)
-        {
-            addPlayerGrid.Visibility = Visibility.Visible;
-        }
+        private void AddPlayerButton_Click(object sender, RoutedEventArgs e) => addPlayerGrid.Visibility = Visibility.Visible;
 
         private void PlayerSubmitBtn_Click(object sender, RoutedEventArgs e)
         {
@@ -305,10 +304,7 @@ namespace SpellBook
             System.Diagnostics.Debug.WriteLine(profileURL);
             
         }
-        private void PlayerCancelBtn_Click(object sender, RoutedEventArgs e)
-        {
-            addPlayerGrid.Visibility = Visibility.Collapsed;
-        }
+        private void PlayerCancelBtn_Click(object sender, RoutedEventArgs e) => addPlayerGrid.Visibility = Visibility.Collapsed;
 
         public void LoadPlayer()
         {
@@ -317,10 +313,10 @@ namespace SpellBook
             RefreshHtmlDoc();
         }
 
-        private void SpellSearchButton_Click(object sender, RoutedEventArgs e)
-        {
-            FilterSpellsByName(SpellSearchBox.Text);
-        }
+        //Spell Filtering
+
+        private void SpellSearchButton_Click(object sender, RoutedEventArgs e) => FilterSpellsByName(SpellSearchBox.Text);
+
         private void OnKeyDownSpellSearch(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Return)
@@ -329,10 +325,30 @@ namespace SpellBook
             }
         }
 
+        private void FilterButton_Click(object sender, RoutedEventArgs e)
+        {
+            string content = (sender as Button).Content.ToString();
+            FilterSpellsByPrimaryType(content);
+            SetSecondaryFilterButtons(content);
+            lastPrimaryFilterPressed = content;
+        }
+
+        private void SecondaryFilterButton_Click(object sender, RoutedEventArgs e)
+        {
+            string content = (sender as Button).Content.ToString();
+            FilterSpellsBySecondaryType(content);
+        }
+
+        public void DisplayFullSpellList()
+        {
+            ClearSpellBook();
+            for (int i = 0; i < SpellList.Count; i++)
+                AddNewSpellPanel(i);
+        }
+
         private void FilterSpellsByName(string spellName)
         {
-            spellBookPanel.Children.Clear();
-            RefreshHtmlDoc();
+            ClearSpellBook();
             for (int i = 0; i < SpellList.Count; i++)
             {
                 if (SpellList[i].name.Contains(spellName, StringComparison.OrdinalIgnoreCase))
@@ -340,14 +356,39 @@ namespace SpellBook
             }
         }
 
-        public int SelectFirstMatchingSpellID(string searchedSpell)
+        public void FilterSpellsByPrimaryType(string filter)
         {
+            ClearSpellBook();
             for (int i = 0; i < SpellList.Count; i++)
             {
-                if (SpellList[i].name.Contains(searchedSpell, StringComparison.OrdinalIgnoreCase))
-                    return i;
+                string type = new SpellType(SpellList[i].type).primary;
+                if (type == filter)
+                    AddNewSpellPanel(i);
             }
-            return 9999;
+        }
+
+        public void FilterSpellsBySecondaryType(string secondary)
+        {
+            ClearSpellBook();
+
+            for (int i = 0; i < SpellList.Count; i++)
+            {
+                string type = new SpellType(SpellList[i].type).primary;
+                string subType = new SpellType(SpellList[i].type).secondary;
+                if (subType != null)
+                {
+                    if (type.Equals(lastPrimaryFilterPressed) && subType.Equals(secondary))
+                    {
+                        AddNewSpellPanel(i);
+                    }
+                }
+            }
+        }
+
+        public void ClearSpellBook()
+        {
+            spellBookPanel.Children.Clear();
+            RefreshHtmlDoc();
         }
 
         public bool SpellExistsAlready(string spellName)
@@ -359,6 +400,12 @@ namespace SpellBook
             }
             return false;
         }
+
+
+        //Edit Spell Menu
+        private void EditSpellButton_Click(object sender, RoutedEventArgs e) => editSpellGrid.Visibility = Visibility.Visible;
+
+        private void EditSpellSearchButton_Click(object sender, RoutedEventArgs e) => DisplayEditableSpell(editSpellSearchBox.Text);
 
         public void DisplayEditableSpell(string searchedSpell)
         {
@@ -374,29 +421,20 @@ namespace SpellBook
             }
         }
 
-        private void EditSpellSearchButton_Click(object sender, RoutedEventArgs e)
+        public int SelectFirstMatchingSpellID(string searchedSpell)
         {
-            DisplayEditableSpell(editSpellSearchBox.Text);
-        }
-
-        private void EditSpellButton_Click(object sender, RoutedEventArgs e)
-        {
-            editSpellGrid.Visibility = Visibility.Visible;
+            for (int i = 0; i < SpellList.Count; i++)
+            {
+                if (SpellList[i].name.Contains(searchedSpell, StringComparison.OrdinalIgnoreCase))
+                    return i;
+            }
+            return 9999;
         }
 
         private void EditSpellCancelButton_Click(object sender, RoutedEventArgs e)
         {
             EditSpellBoxes("No Spell Selected", "", "", "", 9999);
             editSpellGrid.Visibility = Visibility.Collapsed;
-        }
-
-        private void EditSpellBoxes(string name, string type, string movements, string description, int id)
-        {
-            editSpellNameBox.Text = name;
-            editSpellTypeBox.Text = type;
-            editSpellMovementsBox.Text = movements;
-            editSpellDescriptionBox.Text = description;
-            editSpellIDLbl.Content = id;
         }
 
         private void EditSpellSaveButton_Click(object sender, RoutedEventArgs e)
@@ -414,7 +452,15 @@ namespace SpellBook
             {
                 MessageBox.Show(Application.Current.MainWindow, "No Spell Selected", "Overwrite Failure", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
 
+        private void EditSpellBoxes(string name, string type, string movements, string description, int id)
+        {
+            editSpellNameBox.Text = name;
+            editSpellTypeBox.Text = type;
+            editSpellMovementsBox.Text = movements;
+            editSpellDescriptionBox.Text = description;
+            editSpellIDLbl.Content = id;
         }
 
         private Spell GatherSelectedSpell()
@@ -427,5 +473,8 @@ namespace SpellBook
         {
             SpellList[spellID] = editedSpell;
         }
+
+
+
     }
 }
