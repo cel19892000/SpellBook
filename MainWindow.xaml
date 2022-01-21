@@ -5,220 +5,228 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SpellBook"
         mc:Ignorable="d"
-        Title="Spell Book" Height="600" Width="600" MinHeight="600" MinWidth="600">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="180"/>
-            <RowDefinition Height="1*"/>
-        </Grid.RowDefinitions>
-
-        <Grid Grid.Row="0">
-            <Grid.Background>
-                <ImageBrush ImageSource="/Images/leather.png" />
-            </Grid.Background>
-            
+        Title="Spell Book" Height="600" Width="720" MinHeight="600" MinWidth="720">
+    <DockPanel >
+        <Grid DockPanel.Dock="Left" Width="120" Background="Black">
             <Grid.RowDefinitions>
-                <RowDefinition Height="8*"/>
+                <RowDefinition Height="100"/>
                 <RowDefinition Height="20*"/>
-                <RowDefinition Height="28*"/>
             </Grid.RowDefinitions>
 
-            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Width="150" Click="AddSpellButton_Click">Add Spell</Button>
-                <Button Width="150" Click="EditSpellButton_Click">Edit Spell</Button>
-                <Button Width="150" Click="AddPlayerButton_Click">Edit Player</Button>
-                <Button Width="150" Click="Refresh_Button_Click">Refresh Player</Button>
+            <StackPanel Grid.Row="0">
+                <Button Click="AddSpellButton_Click" Height="25">Add Spell</Button>
+                <Button Click="EditSpellButton_Click" Height="25">Edit Spell</Button>
+                <Button Click="AddPlayerButton_Click" Height="25">Edit Player</Button>
+                <Button Click="Refresh_Button_Click" Height="25">Refresh Player</Button>
             </StackPanel>
 
-            <Grid Grid.Row="1">
+            <StackPanel Grid.Row="1">
+                <Label Foreground="AntiqueWhite" Background="DarkSlateGray" HorizontalContentAlignment="Center">Types</Label>
+                <StackPanel x:Name="FilterButtonPanel"></StackPanel>
+
+                <Label Foreground="AntiqueWhite" Background="DarkSlateGray" HorizontalContentAlignment="Center">SubTypes</Label>
+                <StackPanel x:Name="SecondaryFilterButtonPanel"></StackPanel>
+            </StackPanel>
+
+        </Grid>
+        
+        
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="100"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0">
+                <Grid.Background>
+                    <ImageBrush ImageSource="/Images/leather.png" />
+                </Grid.Background>
+
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="20*"/>
                     <RowDefinition Height="10*"/>
-                    <RowDefinition Height="10*"/>
-                </Grid.RowDefinitions>
-
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Grid.ColumnSpan="2">
-                    <Label x:Name="nameLbl" 
-                           FontFamily="/Fonts/#Kalam" 
-                           Foreground="AntiqueWhite"
-                           FontSize="18"
-                           >Name</Label>
-                    <Label 
-                           FontFamily="/Fonts/#Kalam" 
-                           Foreground="AntiqueWhite"
-                           FontSize="18"
-                           >Year:</Label>
-                    <Label x:Name="yearLbl" 
-                           FontFamily="/Fonts/#Kalam" 
-                           Foreground="AntiqueWhite"
-                           FontSize="18"
-                           >1</Label>
-                </StackPanel>
-
-                <StackPanel Orientation="Horizontal" Margin="0,31,0,0" Grid.RowSpan="2" Grid.ColumnSpan="2">
-                    <Label 
-                           FontFamily="/Fonts/#Kalam" 
-                           Foreground="AntiqueWhite"
-                           FontSize="18"
-                           >House:</Label>
-                    <Label x:Name="houseLbl" 
-                           FontFamily="/Fonts/#Kalam" 
-                           Foreground="AntiqueWhite"
-                           FontSize="18"
-                           >Gryffindor</Label>
-                    <Label 
-                           FontFamily="/Fonts/#Kalam" 
-                           Foreground="AntiqueWhite"
-                           FontSize="18"
-                           >House Points:</Label>
-                    <Label x:Name="pointsLbl" 
-                           FontFamily="/Fonts/#Kalam" 
-                           Foreground="AntiqueWhite"
-                           FontSize="18"
-                           >21</Label>
-                </StackPanel>
-
-            </Grid>
-
-            <Grid Grid.Row="2">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="1*"/>
-                    <RowDefinition Height="1*"/>
-                    <RowDefinition Height="1*"/>
                 </Grid.RowDefinitions>
 
                 <Grid Grid.Row="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="10*"/>
+                        <RowDefinition Height="10*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Grid.ColumnSpan="2">
+                        <Label x:Name="nameLbl" 
+                               FontFamily="/Fonts/#Kalam" 
+                               Foreground="AntiqueWhite"
+                               FontSize="18"
+                               >Name</Label>
+                        <Label 
+                               FontFamily="/Fonts/#Kalam" 
+                               Foreground="AntiqueWhite"
+                               FontSize="18"
+                               >Year:</Label>
+                        <Label x:Name="yearLbl" 
+                               FontFamily="/Fonts/#Kalam" 
+                               Foreground="AntiqueWhite"
+                               FontSize="18"
+                               >1</Label>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,31,0,0" Grid.RowSpan="2" Grid.ColumnSpan="2">
+                        <Label 
+                               FontFamily="/Fonts/#Kalam" 
+                               Foreground="AntiqueWhite"
+                               FontSize="18"
+                               >House:</Label>
+                        <Label x:Name="houseLbl" 
+                               FontFamily="/Fonts/#Kalam" 
+                               Foreground="AntiqueWhite"
+                               FontSize="18"
+                               >Gryffindor</Label>
+                        <Label 
+                               FontFamily="/Fonts/#Kalam" 
+                               Foreground="AntiqueWhite"
+                               FontSize="18"
+                               >House Points:</Label>
+                        <Label x:Name="pointsLbl" 
+                               FontFamily="/Fonts/#Kalam" 
+                               Foreground="AntiqueWhite"
+                               FontSize="18"
+                               >21</Label>
+                    </StackPanel>
+
+                </Grid>
+
+                <Grid Grid.Row="1">
+
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1*"/>
                         <ColumnDefinition Width="160"/>
                         <ColumnDefinition Width="80"/>
                     </Grid.ColumnDefinitions>
-                    
+
                     <Label 
                         FontFamily="/Fonts/#Kalam" 
                         Foreground="AntiqueWhite"
                         FontSize="16"
                         Grid.Column="0"
                         >SpellBook Filters</Label>
-                    
+
                     <TextBox x:Name="SpellSearchBox" Grid.Column="1" Height="20" KeyDown="OnKeyDownSpellSearch"></TextBox>
                     <Button x:Name="SpellSearchButton" Grid.Column="2" Width="60" Height="20" Click="SpellSearchButton_Click">Search</Button>
-                    
+
                 </Grid>
+
+            </Grid>
+
+            <ScrollViewer  Grid.Row="1" VerticalScrollBarVisibility="Hidden">
+                <StackPanel x:Name="spellBookPanel" Orientation="Vertical">
+                    <StackPanel.Background>
+                        <ImageBrush ImageSource="/Images/blueFelt.jpg" />
+                    </StackPanel.Background>
+                </StackPanel>
+            
+            </ScrollViewer>
+
+            <Grid x:Name="addSpellGrid" Grid.Row="0" Background="AntiqueWhite" Grid.RowSpan="2" Margin="60" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="5*"/>
+                    <RowDefinition Height="40*"/>
+                    <RowDefinition Height="5*"/>
+                </Grid.RowDefinitions>
+            
+                <Label Grid.Row="0" HorizontalAlignment="Center" FontSize="20">Add Spell</Label>
+
+                <StackPanel Grid.Row="1">
+
+                    <Label FontSize="20">Spell Name</Label>
+                    <TextBox x:Name="spellNameEntry" FontSize="20"></TextBox>
                 
-                <WrapPanel x:Name="FilterButtonPanel" Grid.Row="1" VerticalAlignment="Bottom"></WrapPanel>
-                <WrapPanel x:Name="SecondaryFilterButtonPanel" Grid.Row="2" VerticalAlignment="Bottom"></WrapPanel>
+                    <Label FontSize="20">Spell Movements</Label>
+                    <TextBox x:Name="spellMovementsEntry" FontSize="20"></TextBox>
+
+                    <StackPanel Orientation="Horizontal">
+                        <Label FontSize="20">Spell Category</Label>
+                        <Label FontSize="12" VerticalAlignment="Bottom">*Case and Spelling Sensitive</Label>
+                    </StackPanel>
+                    <TextBox x:Name="spellTypeEntry" FontSize="20"></TextBox>
+                
+                    <Label FontSize="20">Spell Description</Label>
+                    <TextBox x:Name="spellDescriptionEntry" FontSize="20"></TextBox>
+                
+                </StackPanel>
+
+                <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button x:Name="spellCancelBtn" Width="200" Margin="2,2,20,8" Click="SpellCancelBtn_Click">Cancel</Button>
+                    <Button x:Name="spellSubmitBtn" Width="200" Margin="20,2,2,8" Click="SpellSubmitBtn_Click">Submit</Button>
+                </StackPanel>
+            
+            </Grid>
+        
+            <Grid x:Name="addPlayerGrid" Grid.Row="0" Background="AntiqueWhite" Grid.RowSpan="2" Margin="60" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="5*"/>
+                    <RowDefinition Height="40*"/>
+                    <RowDefinition Height="5*"/>
+                </Grid.RowDefinitions>
+
+                <Label Grid.Row="0" HorizontalAlignment="Center" FontSize="20">Add Player Data</Label>
+                <StackPanel Grid.Row="1">
+
+                    <Label FontSize="20">Player Profile Url</Label>
+                    <Label FontSize="12">Copy and Paste the Full Url to your Knockturn Profile Page</Label>
+                    <Label FontSize="12">e.g. http://profile.knockturnmc.com/player/49f1ee42-854c-45cb-bc6b-e307ed0bc8e7</Label>
+                    <Label FontSize="12">Important: Change https to http</Label>
+                    <TextBox x:Name="playerUrlEntry" FontSize="20"></TextBox>
+
+                </StackPanel>
+
+                <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button x:Name="playerCancelBtn" Width="200" Margin="2,2,20,8" Click="PlayerCancelBtn_Click">Cancel</Button>
+                    <Button x:Name="playerSubmitBtn" Width="200" Margin="20,2,2,8" Click="PlayerSubmitBtn_Click">Submit</Button>
+                </StackPanel>
+            
+            </Grid>
+
+            <Grid x:Name="editSpellGrid" Grid.Row="0" Background="AntiqueWhite" Grid.RowSpan="2" Margin="60" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="6*"/>
+                    <RowDefinition Height="50*"/>
+                    <RowDefinition Height="7*"/>
+                </Grid.RowDefinitions>
+
+                <Label Grid.Row="0" HorizontalAlignment="Center" FontSize="20">Edit Spell</Label>
+            
+                <StackPanel Grid.Row="1">
+
+                    <Label FontSize="20" HorizontalAlignment="Center">Step 1: Select Spell</Label>
+                    <TextBox x:Name="editSpellSearchBox" FontSize="20"></TextBox>
+                    <Button x:Name="EditSpellSearchButton" Click="EditSpellSearchButton_Click">Search</Button>
+
+                    <Label FontSize="20" HorizontalAlignment="Center">Step 2: Make Changes</Label>
+                    <Label>Spell Name</Label>
+                    <TextBox x:Name="editSpellNameBox">No Spell Selected</TextBox>
+                    <Label>Spell Type</Label>
+                    <TextBox x:Name="editSpellTypeBox"></TextBox>
+                    <Label>Spell Movements</Label>
+                    <TextBox x:Name="editSpellMovementsBox"></TextBox>
+                    <Label>Spell Description</Label>
+                    <TextBox x:Name="editSpellDescriptionBox"></TextBox>
+                    <StackPanel Orientation="Horizontal">
+                        <Label>Spell Identifier</Label>
+                        <Label x:Name="editSpellIDLbl">9999</Label>
+                    </StackPanel>
+                
+
+                </StackPanel>
+
+                <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button Width="200" Margin="2,2,20,8" Click="EditSpellCancelButton_Click">Cancel</Button>
+                    <Button Width="200" Margin="20,2,2,8" Click="EditSpellSaveButton_Click">Save</Button>
+                </StackPanel>
 
             </Grid>
 
         </Grid>
+    </DockPanel>
 
-        <ScrollViewer  Grid.Row="1" VerticalScrollBarVisibility="Hidden">
-            <StackPanel x:Name="spellBookPanel" Orientation="Vertical">
-                <StackPanel.Background>
-                    <ImageBrush ImageSource="/Images/blueFelt.jpg" />
-                </StackPanel.Background>
-            </StackPanel>
-            
-        </ScrollViewer>
-
-        <Grid x:Name="addSpellGrid" Grid.Row="0" Background="AntiqueWhite" Grid.RowSpan="2" Margin="60" Visibility="Collapsed">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="5*"/>
-                <RowDefinition Height="40*"/>
-                <RowDefinition Height="5*"/>
-            </Grid.RowDefinitions>
-            
-            <Label Grid.Row="0" HorizontalAlignment="Center" FontSize="20">Add Spell</Label>
-
-            <StackPanel Grid.Row="1">
-
-                <Label FontSize="20">Spell Name</Label>
-                <TextBox x:Name="spellNameEntry" FontSize="20"></TextBox>
-                
-                <Label FontSize="20">Spell Movements</Label>
-                <TextBox x:Name="spellMovementsEntry" FontSize="20"></TextBox>
-
-                <StackPanel Orientation="Horizontal">
-                    <Label FontSize="20">Spell Category</Label>
-                    <Label FontSize="12" VerticalAlignment="Bottom">*Case and Spelling Sensitive</Label>
-                </StackPanel>
-                <TextBox x:Name="spellTypeEntry" FontSize="20"></TextBox>
-                
-                <Label FontSize="20">Spell Description</Label>
-                <TextBox x:Name="spellDescriptionEntry" FontSize="20"></TextBox>
-                
-            </StackPanel>
-
-            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button x:Name="spellCancelBtn" Width="200" Margin="2,2,20,8" Click="SpellCancelBtn_Click">Cancel</Button>
-                <Button x:Name="spellSubmitBtn" Width="200" Margin="20,2,2,8" Click="SpellSubmitBtn_Click">Submit</Button>
-            </StackPanel>
-            
-        </Grid>
-        
-        <Grid x:Name="addPlayerGrid" Grid.Row="0" Background="AntiqueWhite" Grid.RowSpan="2" Margin="60" Visibility="Collapsed">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="5*"/>
-                <RowDefinition Height="40*"/>
-                <RowDefinition Height="5*"/>
-            </Grid.RowDefinitions>
-
-            <Label Grid.Row="0" HorizontalAlignment="Center" FontSize="20">Add Player Data</Label>
-            <StackPanel Grid.Row="1">
-
-                <Label FontSize="20">Player Profile Url</Label>
-                <Label FontSize="12">Copy and Paste the Full Url to your Knockturn Profile Page</Label>
-                <Label FontSize="12">e.g. http://profile.knockturnmc.com/player/49f1ee42-854c-45cb-bc6b-e307ed0bc8e7</Label>
-                <Label FontSize="12">Important: Change https to http</Label>
-                <TextBox x:Name="playerUrlEntry" FontSize="20"></TextBox>
-
-            </StackPanel>
-
-            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button x:Name="playerCancelBtn" Width="200" Margin="2,2,20,8" Click="PlayerCancelBtn_Click">Cancel</Button>
-                <Button x:Name="playerSubmitBtn" Width="200" Margin="20,2,2,8" Click="PlayerSubmitBtn_Click">Submit</Button>
-            </StackPanel>
-            
-        </Grid>
-
-        <Grid x:Name="editSpellGrid" Grid.Row="0" Background="AntiqueWhite" Grid.RowSpan="2" Margin="60" Visibility="Collapsed">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="6*"/>
-                <RowDefinition Height="50*"/>
-                <RowDefinition Height="7*"/>
-            </Grid.RowDefinitions>
-
-            <Label Grid.Row="0" HorizontalAlignment="Center" FontSize="20">Edit Spell</Label>
-            
-            <StackPanel Grid.Row="1">
-
-                <Label FontSize="20" HorizontalAlignment="Center">Step 1: Select Spell</Label>
-                <TextBox x:Name="editSpellSearchBox" FontSize="20"></TextBox>
-                <Button x:Name="EditSpellSearchButton" Click="EditSpellSearchButton_Click">Search</Button>
-
-                <Label FontSize="20" HorizontalAlignment="Center">Step 2: Make Changes</Label>
-                <Label>Spell Name</Label>
-                <TextBox x:Name="editSpellNameBox">No Spell Selected</TextBox>
-                <Label>Spell Type</Label>
-                <TextBox x:Name="editSpellTypeBox"></TextBox>
-                <Label>Spell Movements</Label>
-                <TextBox x:Name="editSpellMovementsBox"></TextBox>
-                <Label>Spell Description</Label>
-                <TextBox x:Name="editSpellDescriptionBox"></TextBox>
-                <StackPanel Orientation="Horizontal">
-                    <Label>Spell Identifier</Label>
-                    <Label x:Name="editSpellIDLbl">9999</Label>
-                </StackPanel>
-                
-
-            </StackPanel>
-
-            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Width="200" Margin="2,2,20,8" Click="EditSpellCancelButton_Click">Cancel</Button>
-                <Button Width="200" Margin="20,2,2,8" Click="EditSpellSaveButton_Click">Save</Button>
-            </StackPanel>
-
-        </Grid>
-
-    </Grid>
 </Window>
