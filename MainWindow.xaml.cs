@@ -42,9 +42,14 @@ namespace SpellBook
         {
             FilterButtonPanel.Children.Clear();
             Button btn = NewFilterButton("All");
+            btn.Background = new ImageBrush { ImageSource = GetImage("Images/buttonRed.png") };
+            btn.MouseEnter += BtnGreen;
+            btn.MouseLeave += BtnRed;
             btn.Click += (sender, e) =>
             {
                 DisplayFullSpellList();
+                TypeSelectedLbl.Visibility = Visibility.Collapsed;
+                SecondaryFilterButtonPanel.Children.Clear();
             };
             FilterButtonPanel.Children.Add(btn);
 
@@ -64,6 +69,9 @@ namespace SpellBook
                 {
                     FilterButton_Click(sender, e);
                 };
+                btn.Background = new ImageBrush { ImageSource = GetImage("Images/buttonRed.png") };
+                btn.MouseEnter += BtnGreen;
+                btn.MouseLeave += BtnRed;
                 FilterButtonPanel.Children.Add(btn);
             }
 
@@ -72,6 +80,7 @@ namespace SpellBook
         public void SetSecondaryFilterButtons(string primary)
         {
             SecondaryFilterButtonPanel.Children.Clear();
+            TypeSelectedLbl.Visibility = Visibility.Collapsed;
 
             List<string> originalTypeList = new List<string>();
             for (int i = 0; i < SpellList.Count; i++)
@@ -91,7 +100,12 @@ namespace SpellBook
                 {
                     SecondaryFilterButton_Click(sender, e);
                 };
+                btn.Background = new ImageBrush { ImageSource = GetImage("Images/buttonPurple.png") };
+                btn.MouseEnter += BtnGreen;
+                btn.MouseLeave += BtnPurple;
                 SecondaryFilterButtonPanel.Children.Add(btn);
+                TypeSelectedLbl.Content = primary;
+                TypeSelectedLbl.Visibility = Visibility.Visible;
             }
         }
 
@@ -104,38 +118,38 @@ namespace SpellBook
                 MinWidth = 60,
                 BorderThickness = new Thickness(0),
                 Foreground = Brushes.AntiqueWhite,
-                Style = this.FindResource("MyButtonStyle") as Style,
-                Background = new ImageBrush
-                {
-                    ImageSource = GetImage("Images/tab.png")
-                }
+                Style = this.FindResource("MyButtonStyle") as Style
             };
-            btn.MouseEnter += Btn_MouseEnter;
-            btn.MouseLeave += Btn_MouseLeave;
             return btn;
         }
 
-        private void Btn_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
+        private void BtnGreen(object sender, System.Windows.Input.MouseEventArgs e)
         {
             Button button = (sender as Button);
             button.Background = new ImageBrush
             {
-                ImageSource = GetImage("Images/tab.png")
+                ImageSource = GetImage("Images/buttonGreen.png")
             };
         }
 
-        private void Btn_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
+        private void BtnRed(object sender, System.Windows.Input.MouseEventArgs e)
         {
             Button button = (sender as Button);
             button.Background = new ImageBrush
             {
-                ImageSource = GetImage("Images/tabSelected.png")
+                ImageSource = GetImage("Images/buttonRed.png")
             };
-
         }
 
-        
-        
+        private void BtnPurple(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            Button button = (sender as Button);
+            button.Background = new ImageBrush
+            {
+                ImageSource = GetImage("Images/buttonPurple.png")
+            };
+        }
+
         public void AddNewSpellPanel(int i)
         {
             Spell thisSpell = SpellList[i];
@@ -446,6 +460,8 @@ namespace SpellBook
                 OverwriteSpell(editedSpell, spellID);
                 EditSpellBoxes("No Spell Selected", "", "", "", 9999);
                 editSpellGrid.Visibility = Visibility.Collapsed;
+                sm.SaveSpellList(SpellList);
+                SetFilterButtons();
                 FilterSpellsByName(editedSpell.name);
             }
             else

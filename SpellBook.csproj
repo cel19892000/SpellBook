@@ -9,6 +9,9 @@
   <ItemGroup>
     <None Remove="Fonts\Kalam.ttf" />
     <None Remove="Images\blueFelt.jpg" />
+    <None Remove="Images\buttonGreen.png" />
+    <None Remove="Images\buttonPurple.png" />
+    <None Remove="Images\buttonRed.png" />
     <None Remove="Images\leather.png" />
     <None Remove="Images\space.jpg" />
     <None Remove="Images\spellPanelBackground.png" />
@@ -25,6 +28,9 @@
   <ItemGroup>
     <Resource Include="Fonts\Kalam.ttf" />
     <Resource Include="Images\blueFelt.jpg" />
+    <Resource Include="Images\buttonGreen.png" />
+    <Resource Include="Images\buttonPurple.png" />
+    <Resource Include="Images\buttonRed.png" />
     <Resource Include="Images\leather.png" />
     <Resource Include="Images\space.jpg" />
     <Resource Include="Images\spellPanelBackground.png" />
