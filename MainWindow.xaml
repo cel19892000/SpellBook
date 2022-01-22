@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SpellBook"
         mc:Ignorable="d"
-        Title="Spell Book" Height="600" Width="720" MinHeight="600" MinWidth="720">
+        Title="Spell Book" x:Name="SpellBookWindow" Height="600" Width="720" MinHeight="600" MinWidth="720">
     <DockPanel >
         
         <Grid DockPanel.Dock="Left" Width="120" Background="Black">
@@ -24,7 +24,7 @@
             <StackPanel Grid.Row="1">
                 <Label x:Name="TypeSelectedLbl" Foreground="AntiqueWhite" Background="DarkSlateGray" HorizontalContentAlignment="Center" Visibility="Collapsed">SubTypes</Label>
                 <StackPanel x:Name="SecondaryFilterButtonPanel"></StackPanel>
-                <Label Foreground="AntiqueWhite" Background="DarkSlateGray" HorizontalContentAlignment="Center">Types</Label>
+                <Label Foreground="AntiqueWhite" Background="DarkSlateGray" HorizontalContentAlignment="Center">Filters</Label>
                 <StackPanel x:Name="FilterButtonPanel"></StackPanel>
             </StackPanel>
 
@@ -113,7 +113,13 @@
                     <StackPanel Orientation="Horizontal">
                         <Label Foreground="AntiqueWhite" Margin="2,0,10,0">Total Spells: 34</Label>
                         
-                        <CheckBox Foreground="AntiqueWhite" VerticalContentAlignment="Center">Hide Movements</CheckBox>
+                        <CheckBox 
+                            Foreground="AntiqueWhite" 
+                            VerticalContentAlignment="Center"
+                            IsChecked="{Binding ElementName=SpellBookWindow, Path=AreMovementsHidden}"
+                            Checked="HideMovementsCheckBoxChanged"
+                            Unchecked="HideMovementsCheckBoxChanged"
+                            >Hide Movements</CheckBox>
                         
                         
                     </StackPanel>
@@ -156,6 +162,7 @@
                         <Label FontSize="12" VerticalAlignment="Bottom">*Case and Spelling Sensitive</Label>
                     </StackPanel>
                     <TextBox x:Name="spellTypeEntry" FontSize="20"></TextBox>
+                    <Label FontSize="12">- Make SubGroups with the format Primary>Secondary with no spaces</Label>
                 
                     <Label FontSize="20">Spell Description</Label>
                     <TextBox x:Name="spellDescriptionEntry" FontSize="20"></TextBox>

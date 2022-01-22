@@ -30,8 +30,19 @@ namespace SpellBook
 
         public string profileURL;
         public HtmlDocument doc;
-        public string lastPrimaryFilterPressed;
-        public string lastSecondaryFilterPressed;
+        public string lastPrimaryFilterPressed = "";
+        public string lastSecondaryFilterPressed = "";
+        public string lastFilterPressed = "";
+
+        public bool AreMovementsHidden
+        {
+            get { return (bool)GetValue(AreMovementsHiddenProperty); }
+            set { SetValue(AreMovementsHiddenProperty, value); }
+        }
+
+        public static readonly DependencyProperty AreMovementsHiddenProperty =
+            DependencyProperty.Register("AreMovementsHidden", typeof(bool),
+            typeof(MainWindow), new UIPropertyMetadata(false));
 
         public void SetFilterButtons()
         {
@@ -42,11 +53,9 @@ namespace SpellBook
             btn.MouseLeave += WhatIdleColorIsPrimary;
             btn.Click += (sender, e) =>
             {
-                DisplayFullSpellList();
-                TypeSelectedLbl.Visibility = Visibility.Collapsed;
-                SecondaryFilterButtonPanel.Children.Clear();
                 lastPrimaryFilterPressed = "All";
-                SetPrimaryButtonColors();
+                lastFilterPressed = "";
+                FilterAction();
             };
             FilterButtonPanel.Children.Add(btn);
 
@@ -226,7 +235,10 @@ namespace SpellBook
                 Orientation = Orientation.Horizontal
             };
             spTop.Children.Add(Lb_White_Width(thisSpell.name, 200, new Thickness(8, 4, 0, 0), HorizontalAlignment.Left));
-            spTop.Children.Add(Lb_White("Movements: " + thisSpell.movements, new Thickness(0, 4, 0, 0)));
+            if (!AreMovementsHidden)
+                spTop.Children.Add(Lb_White("Movements: " + thisSpell.movements, new Thickness(0, 4, 0, 0)));
+            else
+                spTop.Children.Add(Lb_White("Movements: Hidden", new Thickness(0, 4, 0, 0)));
             sp.Children.Add(spTop);
 
             //Middle Row
@@ -410,17 +422,38 @@ namespace SpellBook
             string content = (sender as Button).Content.ToString();
             lastPrimaryFilterPressed = content;
             lastSecondaryFilterPressed = "";
-            FilterSpellsByPrimaryType(content);
-            SetSecondaryFilterButtons(content);
-            SetPrimaryButtonColors();
+            lastFilterPressed = "Primary";
+            FilterAction();
         }
 
         private void SecondaryFilterButton_Click(object sender, RoutedEventArgs e)
         {
             string content = (sender as Button).Content.ToString();
             lastSecondaryFilterPressed = content;
-            FilterSpellsBySecondaryType(content);
-            SetSecondaryButtonColors();
+            lastFilterPressed = "Secondary";
+            FilterAction();
+        }
+
+        private void FilterAction()
+        {
+            if (lastFilterPressed.Equals("Primary"))
+            {
+                FilterSpellsByPrimaryType(lastPrimaryFilterPressed);
+                SetSecondaryFilterButtons(lastPrimaryFilterPressed);
+                SetPrimaryButtonColors();
+            }
+            else if (lastFilterPressed.Equals("Secondary"))
+            {
+                FilterSpellsBySecondaryType(lastSecondaryFilterPressed);
+                SetSecondaryButtonColors();
+            }
+            else
+            {
+                DisplayFullSpellList();
+                TypeSelectedLbl.Visibility = Visibility.Collapsed;
+                SecondaryFilterButtonPanel.Children.Clear();
+                SetPrimaryButtonColors();
+            }
         }
 
         public void DisplayFullSpellList()
@@ -560,7 +593,9 @@ namespace SpellBook
             SpellList[spellID] = editedSpell;
         }
 
-
-
+        private void HideMovementsCheckBoxChanged(object sender, RoutedEventArgs e)
+        {
+            FilterAction();
+        }
     }
 }
