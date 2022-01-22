@@ -6,17 +6,11 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using HtmlAgilityPack;
-using System.IO;
 using System.Globalization;
 using System.Windows.Input;
 
 namespace SpellBook
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    /// To Do List
-    /// Spell Entry Graphics
     public partial class MainWindow : Window
     {
         public MainWindow()
@@ -37,6 +31,7 @@ namespace SpellBook
         public string profileURL;
         public HtmlDocument doc;
         public string lastPrimaryFilterPressed;
+        public string lastSecondaryFilterPressed;
 
         public void SetFilterButtons()
         {
@@ -44,12 +39,14 @@ namespace SpellBook
             Button btn = NewFilterButton("All");
             btn.Background = new ImageBrush { ImageSource = GetImage("Images/buttonRed.png") };
             btn.MouseEnter += BtnGreen;
-            btn.MouseLeave += BtnRed;
+            btn.MouseLeave += WhatIdleColorIsPrimary;
             btn.Click += (sender, e) =>
             {
                 DisplayFullSpellList();
                 TypeSelectedLbl.Visibility = Visibility.Collapsed;
                 SecondaryFilterButtonPanel.Children.Clear();
+                lastPrimaryFilterPressed = "All";
+                SetPrimaryButtonColors();
             };
             FilterButtonPanel.Children.Add(btn);
 
@@ -102,7 +99,7 @@ namespace SpellBook
                 };
                 btn.Background = new ImageBrush { ImageSource = GetImage("Images/buttonPurple.png") };
                 btn.MouseEnter += BtnGreen;
-                btn.MouseLeave += BtnPurple;
+                btn.MouseLeave += WhatIdleColorIsSecondary;
                 SecondaryFilterButtonPanel.Children.Add(btn);
                 TypeSelectedLbl.Content = primary;
                 TypeSelectedLbl.Visibility = Visibility.Visible;
@@ -115,6 +112,56 @@ namespace SpellBook
                 BtnGreen(sender, e);
             else
                 BtnRed(sender, e);
+        }
+
+        public void SetPrimaryButtonColors()
+        {
+            foreach (Button a in FilterButtonPanel.Children)
+            {
+                if (a.Content.Equals(lastPrimaryFilterPressed))
+                {
+                    a.Background = new ImageBrush
+                    {
+                        ImageSource = GetImage("Images/buttonGreen.png")
+                    };
+                }
+                else
+                {
+                    a.Background = new ImageBrush
+                    {
+                        ImageSource = GetImage("Images/buttonRed.png")
+                    };
+                }
+            }
+        }
+
+        public void WhatIdleColorIsSecondary(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            if ((sender as Button).Content.Equals(lastSecondaryFilterPressed))
+                BtnGreen(sender, e);
+            else
+                BtnPurple(sender, e);
+        }
+
+        public void SetSecondaryButtonColors()
+        {
+            foreach (Button a in SecondaryFilterButtonPanel.Children)
+            {
+                if (a.Content.Equals(lastSecondaryFilterPressed))
+                {
+                    a.Background = new ImageBrush
+                    {
+                        ImageSource = GetImage("Images/buttonGreen.png")
+                    };
+                }
+                else
+                {
+                    a.Background = new ImageBrush
+                    {
+                        ImageSource = GetImage("Images/buttonPurple.png")
+                    };
+                }
+            }
         }
 
         public Button NewFilterButton(string name)
@@ -361,15 +408,19 @@ namespace SpellBook
         private void FilterButton_Click(object sender, RoutedEventArgs e)
         {
             string content = (sender as Button).Content.ToString();
+            lastPrimaryFilterPressed = content;
+            lastSecondaryFilterPressed = "";
             FilterSpellsByPrimaryType(content);
             SetSecondaryFilterButtons(content);
-            lastPrimaryFilterPressed = content;
+            SetPrimaryButtonColors();
         }
 
         private void SecondaryFilterButton_Click(object sender, RoutedEventArgs e)
         {
             string content = (sender as Button).Content.ToString();
+            lastSecondaryFilterPressed = content;
             FilterSpellsBySecondaryType(content);
+            SetSecondaryButtonColors();
         }
 
         public void DisplayFullSpellList()
