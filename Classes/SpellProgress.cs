@@ -9,9 +9,10 @@ namespace SpellBook
         public string percentage;
         public string level;
 
+        public SpellProgress() { }
+
         public SpellProgress(string spellName, HtmlDocument doc)
         {
-            System.Diagnostics.Debug.WriteLine(spellName);
             percentage = "0";
             level = "0";
 
@@ -23,19 +24,16 @@ namespace SpellBook
 
                 if (String.Equals(spellID, spellName, StringComparison.OrdinalIgnoreCase))
                 {
-                    System.Diagnostics.Debug.WriteLine(spellName + " equals " + spellID);
                     string location = "//*[@id=\"spell-data\"]/tbody/tr[" + i + "]/td/div";
                     percentage = SearchAttribute(doc, location, "data-percent");
-                    System.Diagnostics.Debug.WriteLine(percentage);
                     level = SearchAttribute(doc, location, "data-content");
-                    System.Diagnostics.Debug.WriteLine(level);
                     return;
                 }
             }
 
         }
 
-        private string SearchAttribute(HtmlDocument doc, string location, string attributeType)
+        public string SearchAttribute(HtmlDocument doc, string location, string attributeType)
         {
             return doc.DocumentNode.SelectSingleNode(location).Attributes[attributeType].Value;
         }

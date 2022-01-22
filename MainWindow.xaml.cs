@@ -71,7 +71,7 @@ namespace SpellBook
                 };
                 btn.Background = new ImageBrush { ImageSource = GetImage("Images/buttonRed.png") };
                 btn.MouseEnter += BtnGreen;
-                btn.MouseLeave += BtnRed;
+                btn.MouseLeave += WhatIdleColorIsPrimary;
                 FilterButtonPanel.Children.Add(btn);
             }
 
@@ -107,6 +107,14 @@ namespace SpellBook
                 TypeSelectedLbl.Content = primary;
                 TypeSelectedLbl.Visibility = Visibility.Visible;
             }
+        }
+
+        public void WhatIdleColorIsPrimary(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            if ((sender as Button).Content.Equals(lastPrimaryFilterPressed))
+                BtnGreen(sender, e);
+            else
+                BtnRed(sender, e);
         }
 
         public Button NewFilterButton(string name)
@@ -237,6 +245,16 @@ namespace SpellBook
             return bitmapImage;
         }
 
+        private static BitmapImage GetUrlImage(string imageUri)
+        {
+            var bitmapImage = new BitmapImage();
+            bitmapImage.BeginInit();
+            bitmapImage.UriSource = new Uri(imageUri);
+            bitmapImage.EndInit();
+
+            return bitmapImage;
+        }
+
         public void RefreshHtmlDoc()
         {
             try
@@ -257,6 +275,7 @@ namespace SpellBook
             yearLbl.Content = player.year;
             houseLbl.Content = player.house;
             pointsLbl.Content = player.housePoints;
+            PlayerImage.Source = GetUrlImage(player.playerImageSource);
         }
 
         private void Refresh_Button_Click(object sender, RoutedEventArgs e) => RefreshPlayerData();
