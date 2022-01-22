@@ -335,6 +335,7 @@ namespace SpellBook
             houseLbl.Content = player.house;
             pointsLbl.Content = player.housePoints;
             PlayerImage.Source = GetUrlImage(player.playerImageSource);
+            TotalSpellsLbl.Content = SpellList.Count;
         }
 
         private void Refresh_Button_Click(object sender, RoutedEventArgs e) => RefreshPlayerData();
