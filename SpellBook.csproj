@@ -12,13 +12,9 @@
     <None Remove="Images\buttonGreen.png" />
     <None Remove="Images\buttonPurple.png" />
     <None Remove="Images\buttonRed.png" />
+    <None Remove="Images\edit.png" />
     <None Remove="Images\leather.png" />
-    <None Remove="Images\space.jpg" />
     <None Remove="Images\spellPanelBackground.png" />
-    <None Remove="Images\tab.png" />
-    <None Remove="Images\tabClicked.png" />
-    <None Remove="Images\tabSelected.png" />
-    <None Remove="Images\wood.jpg" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,13 +27,9 @@
     <Resource Include="Images\buttonGreen.png" />
     <Resource Include="Images\buttonPurple.png" />
     <Resource Include="Images\buttonRed.png" />
+    <Resource Include="Images\edit.png" />
     <Resource Include="Images\leather.png" />
-    <Resource Include="Images\space.jpg" />
     <Resource Include="Images\spellPanelBackground.png" />
-    <Resource Include="Images\tab.png" />
-    <Resource Include="Images\tabClicked.png" />
-    <Resource Include="Images\tabSelected.png" />
-    <Resource Include="Images\wood.jpg" />
   </ItemGroup>
 
   <ItemGroup>

@@ -19,20 +19,27 @@ namespace SpellBook
             LoadPlayer();
             SpellList = sm.LoadSpellList();
             SetFilterButtons();
-            DisplayFullSpellList();
-            sm.SaveSpellList(SpellList);
             RefreshPlayerData();
+            sm.SaveSpellList(SpellList);
+            FilterAction();
+            SpellView.ItemsSource = DisplayedSpellList;
+            PrimaryFilterControl.ItemsSource = PrimaryFilterList;
+            SecondaryFilterControl.ItemsSource = SecondaryFilterList;
         }
 
         readonly SaveManager sm = new SaveManager();
 
         public List<Spell> SpellList = new List<Spell>();
+        public List<Spell> DisplayedSpellList = new List<Spell>();
+        public List<Filter> PrimaryFilterList = new List<Filter>();
+        public List<Filter> SecondaryFilterList = new List<Filter>();
 
         public string profileURL;
-        public HtmlDocument doc;
+        public static HtmlDocument doc;
         public string lastPrimaryFilterPressed = "";
         public string lastSecondaryFilterPressed = "";
         public string lastFilterPressed = "";
+        public string searchedSpell = "";
 
         public bool AreMovementsHidden
         {
@@ -44,255 +51,83 @@ namespace SpellBook
             DependencyProperty.Register("AreMovementsHidden", typeof(bool),
             typeof(MainWindow), new UIPropertyMetadata(false));
 
+        private void PrimaryFilterPressed(object sender, RoutedEventArgs e)
+        {
+            lastPrimaryFilterPressed = (sender as Button).Content.ToString();
+            if (lastPrimaryFilterPressed.Equals("All") || lastPrimaryFilterPressed.Equals("All Spells"))
+                lastFilterPressed = "";
+            else if (lastPrimaryFilterPressed.Equals(searchedSpell))
+                lastFilterPressed = "Search";
+            else
+                lastFilterPressed = "Primary";
+            lastSecondaryFilterPressed = "";
+            FilterAction();
+            (sender as Button).Background = new ImageBrush
+            {
+                ImageSource = GetImage("Images/buttonGreen.png")
+            };
+            RefreshSecondaryFilterButtons();
+        }
+
         public void SetFilterButtons()
         {
-            FilterButtonPanel.Children.Clear();
-            Button btn = NewFilterButton("All");
-            btn.Background = new ImageBrush { ImageSource = GetImage("Images/buttonRed.png") };
-            btn.MouseEnter += BtnGreen;
-            btn.MouseLeave += WhatIdleColorIsPrimary;
-            btn.Click += (sender, e) =>
+            PrimaryFilterList.Clear();
+            Filter allFilter = new Filter
             {
-                lastPrimaryFilterPressed = "All";
-                lastFilterPressed = "";
-                FilterAction();
+                Primary = "All",
+                Secondary = ""
             };
-            FilterButtonPanel.Children.Add(btn);
-
-            List<string> originalTypeList = new List<string>();
+            PrimaryFilterList.Add(allFilter);
+            List<Filter> originalTypeList = new List<Filter>();
             for (int i = 0; i < SpellList.Count; i++)
             {
-                string type = new SpellType(SpellList[i].type).primary;
+                Filter type = new Filter { Primary = new SpellType(SpellList[i].Type).primary, Secondary = ""};
                 originalTypeList.Add(type);
             }
-                
-            List<string> consolidatedTypeList = originalTypeList.Distinct().ToList();
-
-            foreach (string a in consolidatedTypeList)
-            {
-                btn = NewFilterButton(a);
-                btn.Click += (sender, e) =>
-                {
-                    FilterButton_Click(sender, e);
-                };
-                btn.Background = new ImageBrush { ImageSource = GetImage("Images/buttonRed.png") };
-                btn.MouseEnter += BtnGreen;
-                btn.MouseLeave += WhatIdleColorIsPrimary;
-                FilterButtonPanel.Children.Add(btn);
-            }
-
+            List<Filter> consolidatedTypeList = originalTypeList.Distinct().ToList();
+            PrimaryFilterList.AddRange(consolidatedTypeList);
         }
 
-        public void SetSecondaryFilterButtons(string primary)
+        private void RefreshPrimaryFilterButtons()
         {
-            SecondaryFilterButtonPanel.Children.Clear();
-            TypeSelectedLbl.Visibility = Visibility.Collapsed;
-
-            List<string> originalTypeList = new List<string>();
-            for (int i = 0; i < SpellList.Count; i++)
-            {
-                string primaryType = new SpellType(SpellList[i].type).primary;
-                string type = new SpellType(SpellList[i].type).secondary;
-                if (type != null && primary.Equals(primaryType))
-                    originalTypeList.Add(type);
-            }
-
-            List<string> consolidatedTypeList = originalTypeList.Distinct().ToList();
-
-            foreach (string a in consolidatedTypeList)
-            {
-                Button btn = NewFilterButton(a);
-                btn.Click += (sender, e) =>
-                {
-                    SecondaryFilterButton_Click(sender, e);
-                };
-                btn.Background = new ImageBrush { ImageSource = GetImage("Images/buttonPurple.png") };
-                btn.MouseEnter += BtnGreen;
-                btn.MouseLeave += WhatIdleColorIsSecondary;
-                SecondaryFilterButtonPanel.Children.Add(btn);
-                TypeSelectedLbl.Content = primary;
-                TypeSelectedLbl.Visibility = Visibility.Visible;
-            }
+            SetFilterButtons();
+            PrimaryFilterControl.Items.Refresh();
         }
 
-        public void WhatIdleColorIsPrimary(object sender, System.Windows.Input.MouseEventArgs e)
+        private void RefreshSecondaryFilterButtons()
         {
-            if ((sender as Button).Content.Equals(lastPrimaryFilterPressed))
-                BtnGreen(sender, e);
-            else
-                BtnRed(sender, e);
+            SetSecondaryFilterButtons(lastPrimaryFilterPressed);
+            SecondaryFilterControl.Items.Refresh();
         }
 
-        public void SetPrimaryButtonColors()
+        private void SecondaryFilterPressed(object sender, RoutedEventArgs e)
         {
-            foreach (Button a in FilterButtonPanel.Children)
-            {
-                if (a.Content.Equals(lastPrimaryFilterPressed))
-                {
-                    a.Background = new ImageBrush
-                    {
-                        ImageSource = GetImage("Images/buttonGreen.png")
-                    };
-                }
-                else
-                {
-                    a.Background = new ImageBrush
-                    {
-                        ImageSource = GetImage("Images/buttonRed.png")
-                    };
-                }
-            }
-        }
-
-        public void WhatIdleColorIsSecondary(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            if ((sender as Button).Content.Equals(lastSecondaryFilterPressed))
-                BtnGreen(sender, e);
-            else
-                BtnPurple(sender, e);
-        }
-
-        public void SetSecondaryButtonColors()
-        {
-            foreach (Button a in SecondaryFilterButtonPanel.Children)
-            {
-                if (a.Content.Equals(lastSecondaryFilterPressed))
-                {
-                    a.Background = new ImageBrush
-                    {
-                        ImageSource = GetImage("Images/buttonGreen.png")
-                    };
-                }
-                else
-                {
-                    a.Background = new ImageBrush
-                    {
-                        ImageSource = GetImage("Images/buttonPurple.png")
-                    };
-                }
-            }
-        }
-
-        public Button NewFilterButton(string name)
-        {
-            Button btn = new Button
-            {
-                Content = name,
-                Margin = new Thickness(0),
-                MinWidth = 60,
-                BorderThickness = new Thickness(0),
-                Foreground = Brushes.AntiqueWhite,
-                Style = this.FindResource("MyButtonStyle") as Style
-            };
-            return btn;
-        }
-
-        private void BtnGreen(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            Button button = (sender as Button);
-            button.Background = new ImageBrush
+            lastSecondaryFilterPressed = (sender as Button).Content.ToString();
+            lastFilterPressed = "Secondary";
+            FilterAction();
+            (sender as Button).Background = new ImageBrush
             {
                 ImageSource = GetImage("Images/buttonGreen.png")
             };
         }
 
-        private void BtnRed(object sender, System.Windows.Input.MouseEventArgs e)
+        public void SetSecondaryFilterButtons(string primary)
         {
-            Button button = (sender as Button);
-            button.Background = new ImageBrush
+            SecondaryFilterList.Clear();
+            List<Filter> originalTypeList = new List<Filter>();
+            for (int i = 0; i < SpellList.Count; i++)
             {
-                ImageSource = GetImage("Images/buttonRed.png")
-            };
+                Filter type = new Filter { Primary = new SpellType(SpellList[i].Type).primary, Secondary = new SpellType(SpellList[i].Type).secondary };
+                if ((type.Primary != null & type.Secondary != "") && primary.Equals(type.Primary))
+                        originalTypeList.Add(type);
+            }
+            List<Filter> consolidatedTypeList = originalTypeList.Distinct().ToList();
+            SecondaryFilterList.AddRange(consolidatedTypeList);
         }
 
-        private void BtnPurple(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            Button button = (sender as Button);
-            button.Background = new ImageBrush
-            {
-                ImageSource = GetImage("Images/buttonPurple.png")
-            };
-        }
-
-        public void AddNewSpellPanel(int i)
-        {
-            Spell thisSpell = SpellList[i];
-            SpellProgress thisSpellData = new SpellProgress(thisSpell.name, doc);
-            
-            StackPanel sp = new StackPanel
-            {
-                Orientation = Orientation.Vertical,
-                Margin = new Thickness(6),
-                Background = new ImageBrush
-                {
-                    ImageSource = GetImage("Images/spellPanelBackground.png")
-                }
-            };
-
-            //Top Row
-            StackPanel spTop = new StackPanel
-            {
-                Orientation = Orientation.Horizontal
-            };
-            spTop.Children.Add(Lb_White_Width(thisSpell.name, 200, new Thickness(8, 4, 0, 0), HorizontalAlignment.Left));
-            if (!AreMovementsHidden)
-                spTop.Children.Add(Lb_White("Movements: " + thisSpell.movements, new Thickness(0, 4, 0, 0)));
-            else
-                spTop.Children.Add(Lb_White("Movements: Hidden", new Thickness(0, 4, 0, 0)));
-            sp.Children.Add(spTop);
-
-            //Middle Row
-            sp.Children.Add(Lb_White("Info: " + thisSpell.description, new Thickness(8, 0, 0, 0)));
-
-            //Bottom Row
-            StackPanel spBottom = new StackPanel
-            {
-                Orientation = Orientation.Horizontal
-            };
-            spBottom.Children.Add(Lb_White_Width(thisSpell.type, 120, new Thickness(8, 2, 0, 8), HorizontalAlignment.Left));
-            spBottom.Children.Add(Lb_White_Width(thisSpellData.level, 160, new Thickness(0, 2, 0, 8), HorizontalAlignment.Right));
-            double percentage = Convert.ToDouble(thisSpellData.percentage, new CultureInfo("en-US"));
-            ProgressBar pbProgress = new ProgressBar
-            {
-                Value = percentage,
-                Width = 260,
-                Height = 16,
-                Margin = new Thickness(0, 0, 0, 6)
-            };
-            spBottom.Children.Add(pbProgress);
-            sp.Children.Add(spBottom);
-
-            spellBookPanel.Children.Add(sp);
-        }
-
-        private Label Lb_White_Width(string lbContent, int lbWidth, Thickness lbMargin, HorizontalAlignment lbAlignment)
-        {
-
-            Label lb = new Label
-            {
-                Content = lbContent,
-                Foreground = Brushes.DarkBlue,
-                Width = lbWidth,
-                Margin = lbMargin,
-                FontFamily = new FontFamily(new Uri("pack://application:,,,/"), "./Fonts/#Kalam"),
-                FontSize = 20,
-                HorizontalContentAlignment = lbAlignment
-            };
-            return lb;
-        }
-
-        private Label Lb_White(string lbContent, Thickness lbMargin)
-        {
-            Label lb = new Label
-            {
-                Content = lbContent,
-                Foreground = Brushes.DarkBlue,
-                Margin = lbMargin,
-                FontFamily = new FontFamily(new Uri("pack://application:,,,/"), "./Fonts/#Kalam"),
-                FontSize = 20
-            };
-            return lb;
-        }
+        private void BtnGreen(object sender, MouseEventArgs e) => (sender as Button).Background = new ImageBrush { ImageSource = GetImage("Images/buttonGreen.png") };
+        private void BtnRed(object sender, MouseEventArgs e) => (sender as Button).Background = new ImageBrush { ImageSource = GetImage("Images/buttonRed.png") };
+        private void BtnPurple(object sender, MouseEventArgs e) => (sender as Button).Background = new ImageBrush { ImageSource = GetImage("Images/buttonPurple.png") };
 
         private static BitmapImage GetImage(string imageUri)
         {
@@ -300,7 +135,6 @@ namespace SpellBook
             bitmapImage.BeginInit();
             bitmapImage.UriSource = new Uri("pack://application:,,,/" + imageUri, UriKind.RelativeOrAbsolute);
             bitmapImage.EndInit();
-
             return bitmapImage;
         }
 
@@ -310,7 +144,6 @@ namespace SpellBook
             bitmapImage.BeginInit();
             bitmapImage.UriSource = new Uri(imageUri);
             bitmapImage.EndInit();
-
             return bitmapImage;
         }
 
@@ -329,12 +162,12 @@ namespace SpellBook
 
         public void RefreshPlayerData()
         {
-            PlayerData player = new PlayerData(doc);
-            nameLbl.Content = player.name;
-            yearLbl.Content = player.year;
-            houseLbl.Content = player.house;
-            pointsLbl.Content = player.housePoints;
-            PlayerImage.Source = GetUrlImage(player.playerImageSource);
+            PlayerData player = new PlayerData();
+            nameLbl.Content = player.Name;
+            yearLbl.Content = player.Year;
+            houseLbl.Content = player.House;
+            pointsLbl.Content = player.HousePoints;
+            PlayerImage.Source = GetUrlImage(player.PlayerImageSource);
             TotalSpellsLbl.Content = SpellList.Count;
         }
 
@@ -342,28 +175,28 @@ namespace SpellBook
 
         private void SpellSubmitBtn_Click(object sender, RoutedEventArgs e)
         {
-            Spell newSpell = new Spell
+            Spell newSpell = new Spell()
             {
-                name = spellNameEntry.Text,
-                description = spellDescriptionEntry.Text,
-                type = spellTypeEntry.Text,
-                movements = spellMovementsEntry.Text
+                Name = spellNameEntry.Text,
+                Description = spellDescriptionEntry.Text,
+                Type = spellTypeEntry.Text,
+                Movements = spellMovementsEntry.Text
             };
 
-            if (!SpellExistsAlready(newSpell.name))
+
+            if (!SpellExistsAlready(newSpell.Name))
             {
                 SpellList.Add(newSpell);
                 sm.SaveSpellList(SpellList);
                 ClearSpellEntry();
                 addSpellGrid.Visibility = Visibility.Collapsed;
-                SetFilterButtons();
-                FilterSpellsByName(newSpell.name);
+                RefreshPrimaryFilterButtons();
+                FilterAction();
             }
             else
             {
                 MessageBox.Show(Application.Current.MainWindow, "Spell Already Exists", "Add Spell Failure", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-
         }
 
         private void AddSpellButton_Click(object sender, RoutedEventArgs e) => addSpellGrid.Visibility = Visibility.Visible;
@@ -393,7 +226,7 @@ namespace SpellBook
             addPlayerGrid.Visibility = Visibility.Collapsed;
             RefreshHtmlDoc();
             RefreshPlayerData();
-            DisplayFullSpellList();
+            FilterAction();
             System.Diagnostics.Debug.WriteLine(profileURL);
             
         }
@@ -408,22 +241,18 @@ namespace SpellBook
 
         //Spell Filtering
 
-        private void SpellSearchButton_Click(object sender, RoutedEventArgs e) => FilterSpellsByName(SpellSearchBox.Text);
+        private void SpellSearchButton_Click(object sender, RoutedEventArgs e) => SearchBoxEntry(SpellSearchBox.Text);
 
         private void OnKeyDownSpellSearch(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Return)
-            {
-                FilterSpellsByName(SpellSearchBox.Text);
-            }
+                SearchBoxEntry(SpellSearchBox.Text);
         }
 
-        private void FilterButton_Click(object sender, RoutedEventArgs e)
+        private void SearchBoxEntry(string spellName)
         {
-            string content = (sender as Button).Content.ToString();
-            lastPrimaryFilterPressed = content;
-            lastSecondaryFilterPressed = "";
-            lastFilterPressed = "Primary";
+            searchedSpell = spellName;
+            lastFilterPressed = "Search";
             FilterAction();
         }
 
@@ -437,67 +266,82 @@ namespace SpellBook
 
         private void FilterAction()
         {
+            ClearSpellBook();
+            DisplayedSpellList.Clear();
             if (lastFilterPressed.Equals("Primary"))
             {
                 FilterSpellsByPrimaryType(lastPrimaryFilterPressed);
                 SetSecondaryFilterButtons(lastPrimaryFilterPressed);
-                SetPrimaryButtonColors();
+                TypeSelectedBtn.Content = lastPrimaryFilterPressed;
             }
             else if (lastFilterPressed.Equals("Secondary"))
             {
                 FilterSpellsBySecondaryType(lastSecondaryFilterPressed);
-                SetSecondaryButtonColors();
+            }
+            else if (lastFilterPressed.Equals("Search"))
+            {
+                FilterSpellsByName();
+                lastPrimaryFilterPressed = "All";
+                lastSecondaryFilterPressed = "";
+                RefreshSecondaryFilterButtons();
+                TypeSelectedBtn.Content = searchedSpell;
             }
             else
             {
-                DisplayFullSpellList();
-                TypeSelectedLbl.Visibility = Visibility.Collapsed;
-                SecondaryFilterButtonPanel.Children.Clear();
-                SetPrimaryButtonColors();
+                FilterSpellsByAll();
+                TypeSelectedBtn.Content = "All Spells";
             }
+            SpellView.Items.Refresh();
         }
 
-        public void DisplayFullSpellList()
+        private void FilterSpellsByAll()
         {
-            ClearSpellBook();
-            for (int i = 0; i < SpellList.Count; i++)
-                AddNewSpellPanel(i);
-        }
-
-        private void FilterSpellsByName(string spellName)
-        {
-            ClearSpellBook();
             for (int i = 0; i < SpellList.Count; i++)
             {
-                if (SpellList[i].name.Contains(spellName, StringComparison.OrdinalIgnoreCase))
-                    AddNewSpellPanel(i);
+                DisplayedSpellList.Add(ConvertedSpell(i));
             }
+        }
+
+        private void FilterSpellsByName()
+        {
+            for (int i = 0; i < SpellList.Count; i++)
+            {
+                if (SpellList[i].Name.Contains(searchedSpell, StringComparison.OrdinalIgnoreCase))
+                    DisplayedSpellList.Add(ConvertedSpell(i));
+            }
+        }
+
+        public Spell ConvertedSpell(int i)
+        {
+            Spell newSpell;
+            if (AreMovementsHidden)
+                newSpell = new Spell() { Name = SpellList[i].Name, Description = SpellList[i].Description, Type = SpellList[i].Type, Movements = "Hidden" };
+            else
+                newSpell = new Spell() { Name = SpellList[i].Name, Description = SpellList[i].Description, Type = SpellList[i].Type, Movements = SpellList[i].Movements };
+            return newSpell;
         }
 
         public void FilterSpellsByPrimaryType(string filter)
         {
-            ClearSpellBook();
             for (int i = 0; i < SpellList.Count; i++)
             {
-                string type = new SpellType(SpellList[i].type).primary;
+                string type = new SpellType(SpellList[i].Type).primary;
                 if (type == filter)
-                    AddNewSpellPanel(i);
+                    DisplayedSpellList.Add(ConvertedSpell(i));
             }
         }
 
         public void FilterSpellsBySecondaryType(string secondary)
         {
-            ClearSpellBook();
-
             for (int i = 0; i < SpellList.Count; i++)
             {
-                string type = new SpellType(SpellList[i].type).primary;
-                string subType = new SpellType(SpellList[i].type).secondary;
+                string type = new SpellType(SpellList[i].Type).primary;
+                string subType = new SpellType(SpellList[i].Type).secondary;
                 if (subType != null)
                 {
                     if (type.Equals(lastPrimaryFilterPressed) && subType.Equals(secondary))
                     {
-                        AddNewSpellPanel(i);
+                        DisplayedSpellList.Add(ConvertedSpell(i));
                     }
                 }
             }
@@ -505,15 +349,15 @@ namespace SpellBook
 
         public void ClearSpellBook()
         {
-            spellBookPanel.Children.Clear();
             RefreshHtmlDoc();
+            SpellList.Sort();
         }
 
         public bool SpellExistsAlready(string spellName)
         {
             for (int i = 0; i < SpellList.Count; i++)
             {
-                if (SpellList[i].name.Equals(spellName, StringComparison.OrdinalIgnoreCase))
+                if (SpellList[i].Name.Equals(spellName, StringComparison.OrdinalIgnoreCase))
                     return true;
             }
             return false;
@@ -521,29 +365,27 @@ namespace SpellBook
 
 
         //Edit Spell Menu
-        private void EditSpellButton_Click(object sender, RoutedEventArgs e) => editSpellGrid.Visibility = Visibility.Visible;
-
-        private void EditSpellSearchButton_Click(object sender, RoutedEventArgs e) => DisplayEditableSpell(editSpellSearchBox.Text);
+        private void EditSpellButtonClick(object sender, RoutedEventArgs e)
+        {
+            editSpellGrid.Visibility = Visibility.Visible;
+            String spellName = (sender as Button).Tag.ToString();
+            DisplayEditableSpell(spellName);
+        }
 
         public void DisplayEditableSpell(string searchedSpell)
         {
-            int spellID = SelectFirstMatchingSpellID(searchedSpell);
-
+            int spellID = FindExactMatchingSpellID(searchedSpell);
             if (spellID != 9999)
-            {
-                EditSpellBoxes(SpellList[spellID].name, SpellList[spellID].type, SpellList[spellID].movements, SpellList[spellID].description, spellID);
-            }
+                EditSpellBoxes(SpellList[spellID].Name, SpellList[spellID].Type, SpellList[spellID].Movements, SpellList[spellID].Description, spellID);
             else
-            {
                 EditSpellBoxes("Spell Not Found", "", "", "", 9999);
-            }
         }
 
-        public int SelectFirstMatchingSpellID(string searchedSpell)
+        public int FindExactMatchingSpellID(string searchedSpell)
         {
             for (int i = 0; i < SpellList.Count; i++)
             {
-                if (SpellList[i].name.Contains(searchedSpell, StringComparison.OrdinalIgnoreCase))
+                if (SpellList[i].Name.Equals(searchedSpell))
                     return i;
             }
             return 9999;
@@ -565,8 +407,8 @@ namespace SpellBook
                 EditSpellBoxes("No Spell Selected", "", "", "", 9999);
                 editSpellGrid.Visibility = Visibility.Collapsed;
                 sm.SaveSpellList(SpellList);
-                SetFilterButtons();
-                FilterSpellsByName(editedSpell.name);
+                RefreshPrimaryFilterButtons();
+                //Sort by Last Sort
             }
             else
             {
@@ -585,7 +427,13 @@ namespace SpellBook
 
         private Spell GatherSelectedSpell()
         {
-            Spell gatheredSpell = new Spell(editSpellNameBox.Text, editSpellDescriptionBox.Text, editSpellTypeBox.Text, editSpellMovementsBox.Text);
+            Spell gatheredSpell = new Spell()
+            {
+                Name = editSpellNameBox.Text,
+                Description = editSpellDescriptionBox.Text,
+                Type = editSpellTypeBox.Text,
+                Movements = editSpellMovementsBox.Text
+            };
             return gatheredSpell;
         }
 
@@ -598,5 +446,7 @@ namespace SpellBook
         {
             FilterAction();
         }
+
+        
     }
 }

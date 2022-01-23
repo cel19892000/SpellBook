@@ -16,18 +16,68 @@
 
             <StackPanel Grid.Row="0">
                 <Button Click="AddSpellButton_Click" Height="25">Add Spell</Button>
-                <Button Click="EditSpellButton_Click" Height="25">Edit Spell</Button>
                 <Button Click="AddPlayerButton_Click" Height="25">Edit Player</Button>
                 <Button Click="Refresh_Button_Click" Height="25">Refresh Player</Button>
             </StackPanel>
 
             <StackPanel Grid.Row="1">
-                <Label x:Name="TypeSelectedLbl" Foreground="AntiqueWhite" Background="DarkSlateGray" HorizontalContentAlignment="Center" Visibility="Collapsed">SubTypes</Label>
-                <StackPanel x:Name="SecondaryFilterButtonPanel"></StackPanel>
-                <Label Foreground="AntiqueWhite" Background="DarkSlateGray" HorizontalContentAlignment="Center">Filters</Label>
-                <StackPanel x:Name="FilterButtonPanel"></StackPanel>
+                <Button 
+                    x:Name="TypeSelectedBtn" 
+                    Content="All Spells" 
+                    Style="{StaticResource MyButtonStyle}" 
+                    Foreground="AntiqueWhite" 
+                    Height="30" 
+                    FontSize="16" 
+                    FontWeight="DemiBold"
+                    Click="PrimaryFilterPressed"
+                    >
+                    <Button.Background>
+                        <ImageBrush ImageSource="/Images/buttonGreen.png"/>
+                    </Button.Background>
+                </Button>
+                <ItemsControl x:Name="SecondaryFilterControl">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button 
+                                Content="{Binding Secondary}"
+                                Foreground="AntiqueWhite"
+                                Style="{StaticResource MyButtonStyle}"
+                                MouseEnter="BtnGreen"
+                                MouseLeave="BtnPurple"
+                                Click="SecondaryFilterPressed"
+                                Width="100"
+                                HorizontalAlignment="Right"
+                                Height="22"
+                                >
+                                <Button.Background>
+                                    <ImageBrush ImageSource="/Images/buttonPurple.png"/>
+                                </Button.Background>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                
+                <ItemsControl x:Name="PrimaryFilterControl">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button 
+                                Content="{Binding Primary}"
+                                Foreground="AntiqueWhite"
+                                Style="{StaticResource MyButtonStyle}"
+                                MouseEnter="BtnGreen"
+                                MouseLeave="BtnRed"
+                                Click="PrimaryFilterPressed"
+                                Height="22"
+                                >
+                                <Button.Background>
+                                    <ImageBrush ImageSource="/Images/buttonRed.png"/>
+                                </Button.Background>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </StackPanel>
-
+            
         </Grid>
         
         <Grid>
@@ -132,14 +182,47 @@
 
             </Grid>
 
-            <ScrollViewer  Grid.Row="1" VerticalScrollBarVisibility="Hidden">
-                <StackPanel x:Name="spellBookPanel" Orientation="Vertical">
-                    <StackPanel.Background>
-                        <ImageBrush ImageSource="/Images/blueFelt.jpg" />
-                    </StackPanel.Background>
-                </StackPanel>
-            
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Hidden">
+                <ScrollViewer.Background>
+                    <ImageBrush ImageSource="/Images/blueFelt.jpg"/>
+                </ScrollViewer.Background>
+
+                <ItemsControl  x:Name="SpellView">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid MaxWidth="700">
+                                <Grid.Background>
+                                    <ImageBrush ImageSource="/Images/spellPanelBackground.png"/>
+                                </Grid.Background>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="2*"/>
+                                    <RowDefinition Height="2*"/>
+                                    <RowDefinition Height="2*"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="3*"/>
+                                    <ColumnDefinition Width="2*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Label Margin="10,8,0,0" FontSize="20" FontFamily="/Fonts/#Kalam" Foreground="DarkBlue" Grid.Row="0" Grid.Column="0" Content="{Binding Name}"/>
+                                <Label HorizontalAlignment="Right" Margin="0,8,16,0" FontSize="20" FontFamily="/Fonts/#Kalam" Foreground="DarkBlue" Grid.Row="0" Grid.Column="1" Content="{Binding Type}"/>
+                                <Label Margin="10,0,0,0" FontSize="20" FontFamily="/Fonts/#Kalam" Foreground="DarkBlue" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Content="{Binding Movements}"/>
+                                <ProgressBar Margin="0,0,16,0" Grid.Row="1" Grid.Column="1" Value="{Binding Percent}" Height="30"/>
+                                <Label Margin="0,0,16,0" HorizontalAlignment="Right" Grid.Row="1" Grid.Column="1" FontSize="20" FontFamily="/Fonts/#Kalam" Foreground="DarkBlue" Content="{Binding Level}"/>
+                                <Label Margin="10,0,0,8" FontSize="20" FontFamily="/Fonts/#Kalam" Foreground="DarkBlue" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Content="{Binding Description}"/>
+
+                                <Button Grid.Column="1" Grid.Row="2" Margin="0,0,16,8" Height="30" Width="50" HorizontalAlignment="Right" Tag ="{Binding Name}" Click="EditSpellButtonClick">
+                                    <Button.Background>
+                                        <ImageBrush ImageSource="/Images/edit.png"/>
+                                    </Button.Background>
+                                </Button>
+                                
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </ScrollViewer>
+            
 
             <Grid x:Name="addSpellGrid" Grid.Row="0" Background="AntiqueWhite" Grid.RowSpan="2" Margin="60" Visibility="Collapsed">
                 <Grid.RowDefinitions>
@@ -147,6 +230,7 @@
                     <RowDefinition Height="40*"/>
                     <RowDefinition Height="5*"/>
                 </Grid.RowDefinitions>
+                
             
                 <Label Grid.Row="0" HorizontalAlignment="Center" FontSize="20">Add Spell</Label>
 
@@ -210,14 +294,8 @@
                 </Grid.RowDefinitions>
 
                 <Label Grid.Row="0" HorizontalAlignment="Center" FontSize="20">Edit Spell</Label>
-            
+
                 <StackPanel Grid.Row="1">
-
-                    <Label FontSize="20" HorizontalAlignment="Center">Step 1: Select Spell</Label>
-                    <TextBox x:Name="editSpellSearchBox" FontSize="20"></TextBox>
-                    <Button x:Name="EditSpellSearchButton" Click="EditSpellSearchButton_Click">Search</Button>
-
-                    <Label FontSize="20" HorizontalAlignment="Center">Step 2: Make Changes</Label>
                     <Label>Spell Name</Label>
                     <TextBox x:Name="editSpellNameBox">No Spell Selected</TextBox>
                     <Label>Spell Type</Label>
@@ -230,8 +308,6 @@
                         <Label>Spell Identifier</Label>
                         <Label x:Name="editSpellIDLbl">9999</Label>
                     </StackPanel>
-                
-
                 </StackPanel>
 
                 <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">

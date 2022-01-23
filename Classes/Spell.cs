@@ -1,20 +1,74 @@
-﻿namespace SpellBook
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+
+namespace SpellBook
 {
-    public class Spell
+    public class Spell : IEquatable<Spell> , IComparable<Spell>
     {
-        public string name;
-        public string description;
-        public string type;
-        public string movements;
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public string Type { get; set; }
+        public string Movements { get; set; }
+
+        private string _level = string.Empty;
+
+        public string Level 
+        {
+            get
+            {
+                return new SpellProgress(Name, MainWindow.doc).level;
+            }
+            set
+            {
+                _level = value;
+            } 
+        }
+
+        private double _percent = double.NaN;
+        public double Percent
+        {
+            get
+            {
+                SpellProgress thisSpell = new SpellProgress(Name, MainWindow.doc);
+                double percentage = Convert.ToDouble(thisSpell.percentage, new CultureInfo("en-US"));
+                return percentage;
+            }
+            set
+            {
+                _percent = value;
+            }
+        }
+
 
         public Spell() { }
 
-        public Spell(string spellName, string spellDescription, string spellType, string spellMovements)
+        public override bool Equals(object obj)
         {
-            name = spellName;
-            description = spellDescription;
-            type = spellType;
-            movements = spellMovements;
+            if (obj == null) return false;
+            Spell objAsSpell = obj as Spell;
+            if (objAsSpell == null) return false;
+            else return Equals(objAsSpell);
+        }
+
+        public int CompareTo(Spell compareSpell)
+        {
+            if (compareSpell == null)
+                return 1;
+
+            else
+                return this.Name.CompareTo(compareSpell.Name);
+        }
+
+        public override int GetHashCode()
+        {
+            return Name.GetHashCode();
+        }
+
+        public bool Equals(Spell other)
+        {
+            if (other == null) return false;
+            return (this.Name.Equals(other.Name));
         }
 
     }

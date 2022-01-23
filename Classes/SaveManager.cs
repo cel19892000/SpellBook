@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using HtmlAgilityPack;
 
@@ -78,18 +79,16 @@ namespace SpellBook
 
         public List<Spell> StartUpSpellList()
         {
-            List<Spell> SpellList = new List<Spell>();
-
-            string[] spellNames = { "Lumos" };
-            string[] spellTypes = { "Charm" };
-            string[] spellMovements = { "Up" };
-            string[] spellDescriptions = { "Casts light around the player" };
-
-            for (int i = 0; i < spellNames.Length; i++)
+            List<Spell> SpellList = new List<Spell>
             {
-                Spell newSpell = new Spell(spellNames[i], spellDescriptions[i], spellTypes[i], spellMovements[i]);
-                SpellList.Add(newSpell);
-            }
+                new Spell() 
+                { 
+                    Name = "Lumos", 
+                    Type = "Charm", 
+                    Description = "Casts light around the player", 
+                    Movements = "Up"
+                }
+            };
 
             return SpellList;
         }

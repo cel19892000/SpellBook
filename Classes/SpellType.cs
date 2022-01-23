@@ -7,10 +7,17 @@
 
         public SpellType(string fullType)
         {
-            string[] types = fullType.Split('>');
-            primary = types[0];
-            if (types.Length > 1)
-                secondary = types[1];
+            if (fullType != null)
+            {
+                string[] types = fullType.Split('>');
+                primary = types[0];
+                if (types.Length > 1)
+                    secondary = types[1];
+                else
+                    secondary = "";
+            }
+            
+            
         }
 
     }
