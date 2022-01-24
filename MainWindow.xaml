@@ -15,121 +15,29 @@
             </Grid.RowDefinitions>
 
             <StackPanel Grid.Row="0">
-                <Button 
-                    Foreground="AntiqueWhite"
-                    Style="{StaticResource MyButtonStyle}"
-                    MouseEnter="BtnGreen"
-                    MouseLeave="BtnOrange"
-                    Height="25"
-                    Content="Main Menu"
-                    >
-                    <Button.Background>
-                        <ImageBrush ImageSource="/Images/buttonOrange.png"/>
-                    </Button.Background>
-                </Button>
-                
-                <Button 
-                    Foreground="AntiqueWhite"
-                    Style="{StaticResource MyButtonStyle}"
-                    MouseEnter="BtnGreen"
-                    MouseLeave="BtnOrange"
-                    Click="AddSpellButton_Click" 
-                    Height="25"
-                    Content="Add Spell"
-                    >
-                    <Button.Background>
-                        <ImageBrush ImageSource="/Images/buttonOrange.png"/>
-                    </Button.Background>
-                </Button>
-
-                <Button 
-                    Foreground="AntiqueWhite"
-                    Style="{StaticResource MyButtonStyle}"
-                    MouseEnter="BtnGreen"
-                    MouseLeave="BtnOrange"
-                    Click="AddPlayerButton_Click" 
-                    Height="25"
-                    Content="Edit Player"
-                    >
-                    <Button.Background>
-                        <ImageBrush ImageSource="/Images/buttonOrange.png"/>
-                    </Button.Background>
-                </Button>
-
-                <Button 
-                    Foreground="AntiqueWhite"
-                    Style="{StaticResource MyButtonStyle}"
-                    MouseEnter="BtnGreen"
-                    MouseLeave="BtnOrange"
-                    Click="Refresh_Button_Click" 
-                    Height="25"
-                    Content="Refresh Player"
-                    >
-                    <Button.Background>
-                        <ImageBrush ImageSource="/Images/buttonOrange.png"/>
-                    </Button.Background>
-                </Button>
-                
+                <Button Content="Main Menu" Style="{StaticResource MenuButtonStyle}"/>
+                <Button Content="Add Spell" Click="AddSpellButton_Click" Style="{StaticResource MenuButtonStyle}"/>
+                <Button Content="Edit Player" Click="AddPlayerButton_Click" Style="{StaticResource MenuButtonStyle}"/>
+                <Button Content="Refresh Player" Click="Refresh_Button_Click" Style="{StaticResource MenuButtonStyle}"/>
             </StackPanel>
 
             <StackPanel Grid.Row="1">
-                <Button 
-                    x:Name="TypeSelectedBtn" 
-                    Content="All Spells" 
-                    Style="{StaticResource MyButtonStyle}" 
-                    Foreground="AntiqueWhite" 
-                    Height="30" 
-                    FontSize="16" 
-                    FontWeight="DemiBold"
-                    Click="PrimaryFilterPressed"
-                    >
-                    <Button.Background>
-                        <ImageBrush ImageSource="/Images/buttonGreen.png"/>
-                    </Button.Background>
-                </Button>
+                <Button x:Name="TypeSelectedBtn" Click="PrimaryFilterPressed" Style="{StaticResource SelectedFilterStyle}"/>
                 <ItemsControl x:Name="SecondaryFilterControl">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Button 
-                                Content="{Binding Secondary}"
-                                Foreground="AntiqueWhite"
-                                Style="{StaticResource MyButtonStyle}"
-                                MouseEnter="BtnGreen"
-                                MouseLeave="BtnPurple"
-                                Click="SecondaryFilterPressed"
-                                Width="100"
-                                HorizontalAlignment="Right"
-                                Height="22"
-                                >
-                                <Button.Background>
-                                    <ImageBrush ImageSource="/Images/buttonPurple.png"/>
-                                </Button.Background>
-                            </Button>
+                            <Button Click="SecondaryFilterPressed" Style="{StaticResource SecondaryFilterStyle}"/>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-                
                 <ItemsControl x:Name="PrimaryFilterControl">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Button 
-                                Content="{Binding Primary}"
-                                Foreground="AntiqueWhite"
-                                Style="{StaticResource MyButtonStyle}"
-                                MouseEnter="BtnGreen"
-                                MouseLeave="BtnRed"
-                                Click="PrimaryFilterPressed"
-                                Height="22"
-                                >
-                                <Button.Background>
-                                    <ImageBrush ImageSource="/Images/buttonRed.png"/>
-                                </Button.Background>
-                            </Button>
+                            <Button Click="PrimaryFilterPressed" Style="{StaticResource PrimaryFilterStyle}"/>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </StackPanel>
-            
         </Grid>
         
         <Grid>
@@ -161,45 +69,16 @@
                     <Image x:Name="PlayerImage" Width="80" Height="66" Grid.RowSpan="2"/>
 
                     <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
-                        <Label x:Name="nameLbl" 
-                               FontFamily="/Fonts/#Kalam" 
-                               Foreground="AntiqueWhite"
-                               FontSize="18"
-                               >Name</Label>
-                        <Label 
-                               FontFamily="/Fonts/#Kalam" 
-                               Foreground="AntiqueWhite"
-                               FontSize="18"
-                               >Year:</Label>
-                        <Label x:Name="yearLbl" 
-                               FontFamily="/Fonts/#Kalam" 
-                               Foreground="AntiqueWhite"
-                               FontSize="18"
-                               >1</Label>
+                        <Label x:Name="nameLbl" Content="Name" Style="{StaticResource InfoLabelStyle}"/>
+                        <Label Content="Year:" Style="{StaticResource InfoLabelStyle}"/>
+                        <Label x:Name="yearLbl" Content="1" Style="{StaticResource InfoLabelStyle}"/>
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1">
-                        <Label 
-                               FontFamily="/Fonts/#Kalam" 
-                               Foreground="AntiqueWhite"
-                               FontSize="18"
-                                x:Name="houseTitleLbl"
-                               >House:</Label>
-                        <Label x:Name="houseLbl" 
-                               FontFamily="/Fonts/#Kalam" 
-                               Foreground="AntiqueWhite"
-                               FontSize="18"
-                               >Gryffindor</Label>
-                        <Label 
-                               FontFamily="/Fonts/#Kalam" 
-                               Foreground="AntiqueWhite"
-                               FontSize="18"
-                               >House Points:</Label>
-                        <Label x:Name="pointsLbl" 
-                               FontFamily="/Fonts/#Kalam" 
-                               Foreground="AntiqueWhite"
-                               FontSize="18"
-                               >21</Label>
+                        <Label Content="House:" Style="{StaticResource InfoLabelStyle}"/>
+                        <Label x:Name="houseLbl" Content="Gryffindor" Style="{StaticResource InfoLabelStyle}"/>
+                        <Label Content="House Points:" Style="{StaticResource InfoLabelStyle}"/>
+                        <Label x:Name="pointsLbl" Content="21" Style="{StaticResource InfoLabelStyle}"/>
                     </StackPanel>
 
                 </Grid>
@@ -213,18 +92,17 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Orientation="Horizontal">
-                        <Label Foreground="AntiqueWhite" Margin="2,0,0,0">Total Spells:</Label>
-                        <Label x:Name="TotalSpellsLbl" Foreground="AntiqueWhite" Margin="0,0,10,0">0</Label>
-                        
+                        <Label Content="Total Spells: " Margin="2,0,0,0" Style="{StaticResource InfoLabelStyle}"/>
+                        <Label x:Name="TotalSpellsLbl" Content="0" Margin="0,0,10,0" Style="{StaticResource InfoLabelStyle}"/>
+
                         <CheckBox 
+                            Content="Hide Movements"
                             Foreground="AntiqueWhite" 
                             VerticalContentAlignment="Center"
                             IsChecked="{Binding ElementName=SpellBookWindow, Path=AreMovementsHidden}"
                             Checked="HideMovementsCheckBoxChanged"
                             Unchecked="HideMovementsCheckBoxChanged"
-                            >Hide Movements</CheckBox>
-                        
-                        
+                        ></CheckBox>
                     </StackPanel>
 
                     <TextBox x:Name="SpellSearchBox" Grid.Column="1" Height="20" KeyDown="OnKeyDownSpellSearch"></TextBox>
@@ -263,21 +141,7 @@
                                 <Label Margin="0,0,16,0" HorizontalAlignment="Right" Grid.Row="1" Grid.Column="1" FontSize="20" FontFamily="/Fonts/#Kalam" Foreground="DarkBlue" Content="{Binding Level}"/>
                                 <Label Margin="10,0,0,8" FontSize="20" FontFamily="/Fonts/#Kalam" Foreground="DarkBlue" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Content="{Binding Description}"/>
 
-                                <Button 
-                                    Grid.Column="1" Grid.Row="2" 
-                                    Margin="0,0,17,10" 
-                                    Height="28" Width="50" 
-                                    HorizontalAlignment="Right" 
-                                    Tag ="{Binding Name}" 
-                                    Click="EditSpellButtonClick"
-                                    Style="{StaticResource MyButtonStyle}"
-                                    MouseEnter="BtnEditGreen"
-                                    MouseLeave="BtnEdit"
-                                    >
-                                    <Button.Background>
-                                        <ImageBrush ImageSource="/Images/buttonEdit.png"/>
-                                    </Button.Background>
-                                </Button>
+                                <Button Click="EditSpellButtonClick" Style="{StaticResource EditButtonStyle}"/>
 
                             </Grid>
                         </DataTemplate>
@@ -317,8 +181,8 @@
                 </StackPanel>
 
                 <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Button x:Name="spellCancelBtn" Width="200" Margin="2,2,20,8" Click="SpellCancelBtn_Click">Cancel</Button>
-                    <Button x:Name="spellSubmitBtn" Width="200" Margin="20,2,2,8" Click="SpellSubmitBtn_Click">Submit</Button>
+                    <Button Content="Cancel" Click="SpellCancelBtn_Click" Style="{StaticResource ActionButtonStyleRed}"/>
+                    <Button Content="Save" Click="SpellSubmitBtn_Click" Style="{StaticResource ActionButtonStyleGreen}"/>
                 </StackPanel>
             
             </Grid>
@@ -342,8 +206,8 @@
                 </StackPanel>
 
                 <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Button x:Name="playerCancelBtn" Width="200" Margin="2,2,20,8" Click="PlayerCancelBtn_Click">Cancel</Button>
-                    <Button x:Name="playerSubmitBtn" Width="200" Margin="20,2,2,8" Click="PlayerSubmitBtn_Click">Submit</Button>
+                    <Button Content="Cancel" Click="PlayerCancelBtn_Click" Style="{StaticResource ActionButtonStyleRed}"/>
+                    <Button Content="Save" Click="PlayerSubmitBtn_Click" Style="{StaticResource ActionButtonStyleGreen}"/>
                 </StackPanel>
             
             </Grid>
@@ -373,8 +237,8 @@
                 </StackPanel>
 
                 <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Button Width="200" Margin="2,2,20,8" Click="EditSpellCancelButton_Click">Cancel</Button>
-                    <Button Width="200" Margin="20,2,2,8" Click="EditSpellSaveButton_Click">Save</Button>
+                    <Button Content="Cancel" Click="EditSpellCancelButton_Click" Style="{StaticResource ActionButtonStyleRed}"/>
+                    <Button Content="Save" Click="EditSpellSaveButton_Click" Style="{StaticResource ActionButtonStyleGreen}"/>
                 </StackPanel>
 
             </Grid>

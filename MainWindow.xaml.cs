@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using HtmlAgilityPack;
 using System.Windows.Input;
@@ -61,7 +60,6 @@ namespace SpellBook
                 lastFilterPressed = "Primary";
             lastSecondaryFilterPressed = "";
             FilterAction();
-            (sender as Button).Background = new ImageBrush { ImageSource = GetLocalImage("Images/buttonGreen.png") };
             RefreshSecondaryFilterButtons();
         }
 
@@ -101,7 +99,6 @@ namespace SpellBook
             lastSecondaryFilterPressed = (sender as Button).Content.ToString();
             lastFilterPressed = "Secondary";
             FilterAction();
-            (sender as Button).Background = new ImageBrush { ImageSource = GetLocalImage("Images/buttonGreen.png") };
         }
 
         public void SetSecondaryFilterButtons(string primary)
@@ -117,15 +114,6 @@ namespace SpellBook
             List<Filter> consolidatedTypeList = originalTypeList.Distinct().ToList();
             SecondaryFilterList.AddRange(consolidatedTypeList);
         }
-
-        private void BtnGreen(object sender, MouseEventArgs e) => (sender as Button).Background = new ImageBrush { ImageSource = GetLocalImage("Images/buttonGreen.png") };
-        private void BtnRed(object sender, MouseEventArgs e) => (sender as Button).Background = new ImageBrush { ImageSource = GetLocalImage("Images/buttonRed.png") };
-        private void BtnPurple(object sender, MouseEventArgs e) => (sender as Button).Background = new ImageBrush { ImageSource = GetLocalImage("Images/buttonPurple.png") };
-        private void BtnOrange(object sender, MouseEventArgs e) => (sender as Button).Background = new ImageBrush { ImageSource = GetLocalImage("Images/buttonOrange.png") };
-        private void BtnEdit(object sender, MouseEventArgs e) => (sender as Button).Background = new ImageBrush { ImageSource = GetLocalImage("Images/buttonEdit.png") };
-        private void BtnEditGreen(object sender, MouseEventArgs e) => (sender as Button).Background = new ImageBrush { ImageSource = GetLocalImage("Images/buttonEditGreen.png") };
-
-        private static BitmapImage GetLocalImage(string imageLocation) => GetUrlImage("pack://application:,,,/" + imageLocation);
 
         private static BitmapImage GetUrlImage(string imageUri)
         {
@@ -171,7 +159,6 @@ namespace SpellBook
                 Type = spellTypeEntry.Text,
                 Movements = spellMovementsEntry.Text
             };
-
 
             if (!SpellExistsAlready(newSpell.Name))
             {
