@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using HtmlAgilityPack;
 using System.Windows.Input;
+using System.IO;
 
 namespace SpellBook
 {
@@ -191,6 +192,41 @@ namespace SpellBook
         }
 
         private void AddPlayerButton_Click(object sender, RoutedEventArgs e) => addPlayerGrid.Visibility = Visibility.Visible;
+        private void UsernameSearchButtonClick(object sender, RoutedEventArgs e)
+        {
+            mcUsernameLbl.Content = playerUrlEntry.Text;
+            string url = new PlayerFinder(playerUrlEntry.Text).url;
+            if (url == "Unknown")
+            {
+                mcUUIDLbl.Content = "Invalid Minecraft Username";
+                knockturnNameLbl.Content = "";
+                confirmPlayerButton.Visibility = Visibility.Hidden;
+            }
+            else
+            {
+                mcUUIDLbl.Content = new PlayerFinder(playerUrlEntry.Text).uuid;
+                HtmlDocument uuidDoc = sm.ImportSpellDataByUrl(url);
+                HtmlNodeCollection childNodes = uuidDoc.DocumentNode.SelectSingleNode("//*[@class=\"ui container\"]").ChildNodes;
+                foreach (var node in childNodes)
+                {
+                    if (node.NodeType == HtmlNodeType.Element)
+                    {
+                        System.Diagnostics.Debug.WriteLine(node.Name);
+                        if (node.Name == "h2")
+                        {
+                            knockturnNameLbl.Content = "Unknown Player";
+                            confirmPlayerButton.Visibility = Visibility.Hidden;
+                            return;
+                        }
+                        else
+                        {
+                            knockturnNameLbl.Content = uuidDoc.DocumentNode.SelectSingleNode("//*[@class=\"ui segments\"]/div[1]/h2/text()").InnerText;
+                            confirmPlayerButton.Visibility = Visibility.Visible;
+                        }
+                    }
+                }
+            }
+        }
 
         private void PlayerSubmitBtn_Click(object sender, RoutedEventArgs e)
         {
@@ -414,11 +450,7 @@ namespace SpellBook
 
         private void HideMovementsCheckBoxChanged(object sender, RoutedEventArgs e) => FilterAction(lastFilterPressed);
 
-        private void UsernameSearchButtonClick(object sender, RoutedEventArgs e)
-        {
-            
-
-        }
+        
 
     }
 }

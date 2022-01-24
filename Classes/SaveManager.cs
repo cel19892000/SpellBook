@@ -117,6 +117,14 @@ namespace SpellBook
             return doc;
         }
 
+        public HtmlDocument ImportSpellDataByUrl(string url)
+        {
+            System.Diagnostics.Debug.WriteLine(url);
+            var web = new HtmlAgilityPack.HtmlWeb();
+            HtmlDocument doc = web.Load(url);
+            return doc;
+        }
+
     }
 
     

@@ -195,19 +195,41 @@
                 </Grid.RowDefinitions>
 
                 <Label Grid.Row="0" HorizontalAlignment="Center" FontSize="20">Add Player Data</Label>
-                <StackPanel Grid.Row="1">
-
-                    <Label FontSize="20">Minecraft Username</Label>
-                    <TextBox x:Name="playerUrlEntry" FontSize="20"></TextBox>
-                    <Button Click="UsernameSearchButtonClick">Search</Button>
-                    <Image x:Name="uuidImage" Height="200" Width="200"></Image>
+                <Grid Grid.Row="1">
                     
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="160"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="100"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <StackPanel Grid.Column="0" Grid.ColumnSpan="2">
+                        <Label FontSize="20">Minecraft Username</Label>
+                        <TextBox x:Name="playerUrlEntry" FontSize="20"></TextBox>
+                        <Button Click="UsernameSearchButtonClick">Search</Button>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="0" Grid.Row="1">
+                        <Label Height="32" FontSize="16">Minecraft Username:</Label>
+                        <Label Height="32" FontSize="16">Minecraft UUID:</Label>
+                        <Label Height="32" FontSize="16">Knockturn Name:</Label>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="1" Grid.Row="1">
+                        <Label x:Name="mcUsernameLbl" Height="32" FontSize="16">username</Label>
+                        <Label x:Name="mcUUIDLbl" Height="32" FontSize="16">uuid</Label>
+                        <Label x:Name="knockturnNameLbl" Height="32" FontSize="16">name</Label>
+                    </StackPanel>
 
-                </StackPanel>
+                </Grid>
 
                 <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
                     <Button Content="Cancel" Click="PlayerCancelBtn_Click" Style="{StaticResource ActionButtonStyleRed}"/>
-                    <Button Content="Save" Click="PlayerSubmitBtn_Click" Style="{StaticResource ActionButtonStyleGreen}"/>
+                    <Button x:Name="confirmPlayerButton" Visibility="Hidden" Content="Confirm" Click="PlayerSubmitBtn_Click" Style="{StaticResource ActionButtonStyleGreen}"/>
                 </StackPanel>
             
             </Grid>
