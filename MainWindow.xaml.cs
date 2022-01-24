@@ -19,7 +19,7 @@ namespace SpellBook
             SetFilterButtons();
             RefreshPlayerData();
             sm.SaveSpellList(SpellList);
-            FilterAction();
+            FilterAction(lastFilterPressed);
             SpellView.ItemsSource = DisplayedSpellList;
             PrimaryFilterControl.ItemsSource = PrimaryFilterList;
             SecondaryFilterControl.ItemsSource = SecondaryFilterList;
@@ -36,7 +36,7 @@ namespace SpellBook
         public static HtmlDocument doc;
         public string lastPrimaryFilterPressed = "";
         public string lastSecondaryFilterPressed = "";
-        public string lastFilterPressed = "";
+        public string lastFilterPressed = "All";
         public string searchedSpell = "";
 
         public bool AreMovementsHidden
@@ -52,14 +52,14 @@ namespace SpellBook
         private void PrimaryFilterPressed(object sender, RoutedEventArgs e)
         {
             lastPrimaryFilterPressed = (sender as Button).Content.ToString();
-            if (lastPrimaryFilterPressed.Equals("All") || lastPrimaryFilterPressed.Equals("All Spells"))
-                lastFilterPressed = "";
-            else if (lastPrimaryFilterPressed.Equals(searchedSpell))
-                lastFilterPressed = "Search";
-            else
-                lastFilterPressed = "Primary";
             lastSecondaryFilterPressed = "";
-            FilterAction();
+            if (lastPrimaryFilterPressed.Equals("All") || lastPrimaryFilterPressed.Equals("All Spells"))
+                FilterAction("All");
+            else if (lastPrimaryFilterPressed.Equals(searchedSpell))
+                FilterAction("Search");
+            else
+                FilterAction("Primary");
+            
             RefreshSecondaryFilterButtons();
         }
 
@@ -97,8 +97,7 @@ namespace SpellBook
         private void SecondaryFilterPressed(object sender, RoutedEventArgs e)
         {
             lastSecondaryFilterPressed = (sender as Button).Content.ToString();
-            lastFilterPressed = "Secondary";
-            FilterAction();
+            FilterAction("Secondary");
         }
 
         public void SetSecondaryFilterButtons(string primary)
@@ -167,7 +166,7 @@ namespace SpellBook
                 ClearSpellEntry();
                 addSpellGrid.Visibility = Visibility.Collapsed;
                 RefreshPrimaryFilterButtons();
-                FilterAction();
+                FilterAction(lastFilterPressed);
             }
             else
             {
@@ -195,17 +194,16 @@ namespace SpellBook
 
         private void PlayerSubmitBtn_Click(object sender, RoutedEventArgs e)
         {
-            profileURL = playerUrlEntry.Text;
+            profileURL = new PlayerFinder(playerUrlEntry.Text).url;
+            //Check
             System.Diagnostics.Debug.WriteLine(profileURL);
             sm.SavePlayer(profileURL);
-            System.Diagnostics.Debug.WriteLine(profileURL);
             addPlayerGrid.Visibility = Visibility.Collapsed;
             RefreshHtmlDoc();
             RefreshPlayerData();
-            FilterAction();
-            System.Diagnostics.Debug.WriteLine(profileURL);
-            
+            FilterAction(lastFilterPressed);
         }
+
         private void PlayerCancelBtn_Click(object sender, RoutedEventArgs e) => addPlayerGrid.Visibility = Visibility.Collapsed;
 
         public void LoadPlayer()
@@ -222,39 +220,40 @@ namespace SpellBook
         private void OnKeyDownSpellSearch(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Return)
+            {
                 SearchBoxEntry(SpellSearchBox.Text);
+            }
         }
 
         private void SearchBoxEntry(string spellName)
         {
             searchedSpell = spellName;
-            lastFilterPressed = "Search";
-            FilterAction();
+            FilterAction("Search");
         }
 
         private void SecondaryFilterButton_Click(object sender, RoutedEventArgs e)
         {
             string content = (sender as Button).Content.ToString();
             lastSecondaryFilterPressed = content;
-            lastFilterPressed = "Secondary";
-            FilterAction();
+            FilterAction("Secondary");
         }
 
-        private void FilterAction()
+        private void FilterAction(string filterType)
         {
             ClearSpellBook();
             DisplayedSpellList.Clear();
-            if (lastFilterPressed.Equals("Primary"))
+            lastFilterPressed = filterType;
+            if (filterType.Equals("Primary"))
             {
                 FilterSpellsByPrimaryType(lastPrimaryFilterPressed);
                 SetSecondaryFilterButtons(lastPrimaryFilterPressed);
                 TypeSelectedBtn.Content = lastPrimaryFilterPressed;
             }
-            else if (lastFilterPressed.Equals("Secondary"))
+            else if (filterType.Equals("Secondary"))
             {
                 FilterSpellsBySecondaryType(lastSecondaryFilterPressed);
             }
-            else if (lastFilterPressed.Equals("Search"))
+            else if (filterType.Equals("Search"))
             {
                 FilterSpellsByName();
                 lastPrimaryFilterPressed = "All";
@@ -382,7 +381,7 @@ namespace SpellBook
                 editSpellGrid.Visibility = Visibility.Collapsed;
                 sm.SaveSpellList(SpellList);
                 RefreshPrimaryFilterButtons();
-                FilterAction();
+                FilterAction(lastFilterPressed);
             }
             else
             {
@@ -413,7 +412,13 @@ namespace SpellBook
 
         private void OverwriteSpell(Spell editedSpell, int spellID) => SpellList[spellID] = editedSpell;
 
-        private void HideMovementsCheckBoxChanged(object sender, RoutedEventArgs e) => FilterAction();
+        private void HideMovementsCheckBoxChanged(object sender, RoutedEventArgs e) => FilterAction(lastFilterPressed);
+
+        private void UsernameSearchButtonClick(object sender, RoutedEventArgs e)
+        {
+            
+
+        }
 
     }
 }

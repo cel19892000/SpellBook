@@ -187,7 +187,7 @@
             
             </Grid>
         
-            <Grid x:Name="addPlayerGrid" Grid.Row="0" Background="AntiqueWhite" Grid.RowSpan="2" Margin="60" Visibility="Collapsed">
+            <Grid x:Name="addPlayerGrid" Grid.Row="0" Background="AntiqueWhite" Grid.RowSpan="2" Margin="60" Visibility="Visible">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="5*"/>
                     <RowDefinition Height="40*"/>
@@ -197,11 +197,11 @@
                 <Label Grid.Row="0" HorizontalAlignment="Center" FontSize="20">Add Player Data</Label>
                 <StackPanel Grid.Row="1">
 
-                    <Label FontSize="20">Player Profile Url</Label>
-                    <Label FontSize="12">Copy and Paste the Full Url to your Knockturn Profile Page</Label>
-                    <Label FontSize="12">e.g. http://profile.knockturnmc.com/player/49f1ee42-854c-45cb-bc6b-e307ed0bc8e7</Label>
-                    <Label FontSize="12">Important: Change https to http</Label>
+                    <Label FontSize="20">Minecraft Username</Label>
                     <TextBox x:Name="playerUrlEntry" FontSize="20"></TextBox>
+                    <Button Click="UsernameSearchButtonClick">Search</Button>
+                    <Image x:Name="uuidImage" Height="200" Width="200"></Image>
+                    
 
                 </StackPanel>
 

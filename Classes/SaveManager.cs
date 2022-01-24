@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using HtmlAgilityPack;
 
@@ -14,21 +13,15 @@ namespace SpellBook
         public string spellListSaveFile = "SpellList.xml";
         public string spellDataSaveFile = "SpellData.html";
 
-        public string FilePath(string fileName)
-        {
-            return System.IO.Path.Combine(path, fileName);
-        }
+        public string FilePath(string fileName) => System.IO.Path.Combine(path, fileName);
 
         public void SavePlayer(string profileURL)
         {
             DirectoryInfo info = new DirectoryInfo(path);
             if (!info.Exists)
                 info.Create();
-
             System.Xml.Serialization.XmlSerializer writer = new System.Xml.Serialization.XmlSerializer(typeof(string));
-
             System.IO.FileStream file = System.IO.File.Create(FilePath(playerSaveFile));
-
             writer.Serialize(file, profileURL);
             file.Close();
         }
@@ -54,7 +47,6 @@ namespace SpellBook
             DirectoryInfo info = new DirectoryInfo(path);
             if (!info.Exists)
                 info.Create();
-
             System.Xml.Serialization.XmlSerializer writer = new System.Xml.Serialization.XmlSerializer(typeof(List<Spell>));
             System.IO.FileStream file = System.IO.File.Create(FilePath(spellListSaveFile));
             writer.Serialize(file, SpellList);

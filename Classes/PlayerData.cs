@@ -1,6 +1,4 @@
-﻿using HtmlAgilityPack;
-
-namespace SpellBook
+﻿namespace SpellBook
 {
     public class PlayerData
     {
@@ -9,6 +7,7 @@ namespace SpellBook
         public PlayerData() { }
 
         private string _name = string.Empty;
+
         public string Name 
         { 
             get { return MainWindow.doc.DocumentNode.SelectSingleNode("//*[@class=\"ui segments\"]/div[1]/h2/text()").InnerText; }
@@ -35,8 +34,5 @@ namespace SpellBook
             get { return sp.SearchAttribute(MainWindow.doc, "//*[@class=\"four wide column center aligned\"]/img", "src"); }
             set { _name = value; }
         }
-
-        
-
     }
 }

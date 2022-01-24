@@ -14,7 +14,7 @@ namespace SpellBook
         public SpellProgress(string spellName, HtmlDocument doc)
         {
             percentage = "0";
-            level = "0";
+            level = "Unknown";
 
             int knownSpellCount = doc.DocumentNode.SelectNodes("//table[@id='spell-data'][1]//tbody//tr").Count;
 
@@ -30,13 +30,11 @@ namespace SpellBook
                     return;
                 }
             }
-
         }
 
         public string SearchAttribute(HtmlDocument doc, string location, string attributeType)
         {
             return doc.DocumentNode.SelectSingleNode(location).Attributes[attributeType].Value;
         }
-
     }
 }

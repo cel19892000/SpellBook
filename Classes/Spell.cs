@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 
 namespace SpellBook
@@ -13,16 +12,10 @@ namespace SpellBook
 
         private string _level = string.Empty;
 
-        public string Level 
+        public string Level
         {
-            get
-            {
-                return new SpellProgress(Name, MainWindow.doc).level;
-            }
-            set
-            {
-                _level = value;
-            } 
+            get => new SpellProgress(Name, MainWindow.doc).level;
+            set => _level = value;
         }
 
         private double _percent = double.NaN;
@@ -40,7 +33,6 @@ namespace SpellBook
             }
         }
 
-
         public Spell() { }
 
         public override bool Equals(object obj)
@@ -55,15 +47,11 @@ namespace SpellBook
         {
             if (compareSpell == null)
                 return 1;
-
             else
                 return this.Name.CompareTo(compareSpell.Name);
         }
 
-        public override int GetHashCode()
-        {
-            return Name.GetHashCode();
-        }
+        public override int GetHashCode() => Name.GetHashCode();
 
         public bool Equals(Spell other)
         {
