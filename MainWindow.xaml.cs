@@ -6,7 +6,6 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using HtmlAgilityPack;
-using System.Globalization;
 using System.Windows.Input;
 
 namespace SpellBook
@@ -62,10 +61,7 @@ namespace SpellBook
                 lastFilterPressed = "Primary";
             lastSecondaryFilterPressed = "";
             FilterAction();
-            (sender as Button).Background = new ImageBrush
-            {
-                ImageSource = GetImage("Images/buttonGreen.png")
-            };
+            (sender as Button).Background = new ImageBrush { ImageSource = GetLocalImage("Images/buttonGreen.png") };
             RefreshSecondaryFilterButtons();
         }
 
@@ -105,10 +101,7 @@ namespace SpellBook
             lastSecondaryFilterPressed = (sender as Button).Content.ToString();
             lastFilterPressed = "Secondary";
             FilterAction();
-            (sender as Button).Background = new ImageBrush
-            {
-                ImageSource = GetImage("Images/buttonGreen.png")
-            };
+            (sender as Button).Background = new ImageBrush { ImageSource = GetLocalImage("Images/buttonGreen.png") };
         }
 
         public void SetSecondaryFilterButtons(string primary)
@@ -125,24 +118,20 @@ namespace SpellBook
             SecondaryFilterList.AddRange(consolidatedTypeList);
         }
 
-        private void BtnGreen(object sender, MouseEventArgs e) => (sender as Button).Background = new ImageBrush { ImageSource = GetImage("Images/buttonGreen.png") };
-        private void BtnRed(object sender, MouseEventArgs e) => (sender as Button).Background = new ImageBrush { ImageSource = GetImage("Images/buttonRed.png") };
-        private void BtnPurple(object sender, MouseEventArgs e) => (sender as Button).Background = new ImageBrush { ImageSource = GetImage("Images/buttonPurple.png") };
+        private void BtnGreen(object sender, MouseEventArgs e) => (sender as Button).Background = new ImageBrush { ImageSource = GetLocalImage("Images/buttonGreen.png") };
+        private void BtnRed(object sender, MouseEventArgs e) => (sender as Button).Background = new ImageBrush { ImageSource = GetLocalImage("Images/buttonRed.png") };
+        private void BtnPurple(object sender, MouseEventArgs e) => (sender as Button).Background = new ImageBrush { ImageSource = GetLocalImage("Images/buttonPurple.png") };
+        private void BtnOrange(object sender, MouseEventArgs e) => (sender as Button).Background = new ImageBrush { ImageSource = GetLocalImage("Images/buttonOrange.png") };
+        private void BtnEdit(object sender, MouseEventArgs e) => (sender as Button).Background = new ImageBrush { ImageSource = GetLocalImage("Images/buttonEdit.png") };
+        private void BtnEditGreen(object sender, MouseEventArgs e) => (sender as Button).Background = new ImageBrush { ImageSource = GetLocalImage("Images/buttonEditGreen.png") };
 
-        private static BitmapImage GetImage(string imageUri)
-        {
-            var bitmapImage = new BitmapImage();
-            bitmapImage.BeginInit();
-            bitmapImage.UriSource = new Uri("pack://application:,,,/" + imageUri, UriKind.RelativeOrAbsolute);
-            bitmapImage.EndInit();
-            return bitmapImage;
-        }
+        private static BitmapImage GetLocalImage(string imageLocation) => GetUrlImage("pack://application:,,,/" + imageLocation);
 
         private static BitmapImage GetUrlImage(string imageUri)
         {
-            var bitmapImage = new BitmapImage();
+            BitmapImage bitmapImage = new BitmapImage();
             bitmapImage.BeginInit();
-            bitmapImage.UriSource = new Uri(imageUri);
+            bitmapImage.UriSource = new Uri(imageUri, UriKind.RelativeOrAbsolute);
             bitmapImage.EndInit();
             return bitmapImage;
         }
@@ -297,9 +286,7 @@ namespace SpellBook
         private void FilterSpellsByAll()
         {
             for (int i = 0; i < SpellList.Count; i++)
-            {
                 DisplayedSpellList.Add(ConvertedSpell(i));
-            }
         }
 
         private void FilterSpellsByName()
@@ -408,7 +395,7 @@ namespace SpellBook
                 editSpellGrid.Visibility = Visibility.Collapsed;
                 sm.SaveSpellList(SpellList);
                 RefreshPrimaryFilterButtons();
-                //Sort by Last Sort
+                FilterAction();
             }
             else
             {
@@ -437,16 +424,9 @@ namespace SpellBook
             return gatheredSpell;
         }
 
-        private void OverwriteSpell(Spell editedSpell, int spellID)
-        {
-            SpellList[spellID] = editedSpell;
-        }
+        private void OverwriteSpell(Spell editedSpell, int spellID) => SpellList[spellID] = editedSpell;
 
-        private void HideMovementsCheckBoxChanged(object sender, RoutedEventArgs e)
-        {
-            FilterAction();
-        }
+        private void HideMovementsCheckBoxChanged(object sender, RoutedEventArgs e) => FilterAction();
 
-        
     }
 }

@@ -15,9 +15,61 @@
             </Grid.RowDefinitions>
 
             <StackPanel Grid.Row="0">
-                <Button Click="AddSpellButton_Click" Height="25">Add Spell</Button>
-                <Button Click="AddPlayerButton_Click" Height="25">Edit Player</Button>
-                <Button Click="Refresh_Button_Click" Height="25">Refresh Player</Button>
+                <Button 
+                    Foreground="AntiqueWhite"
+                    Style="{StaticResource MyButtonStyle}"
+                    MouseEnter="BtnGreen"
+                    MouseLeave="BtnOrange"
+                    Height="25"
+                    Content="Main Menu"
+                    >
+                    <Button.Background>
+                        <ImageBrush ImageSource="/Images/buttonOrange.png"/>
+                    </Button.Background>
+                </Button>
+                
+                <Button 
+                    Foreground="AntiqueWhite"
+                    Style="{StaticResource MyButtonStyle}"
+                    MouseEnter="BtnGreen"
+                    MouseLeave="BtnOrange"
+                    Click="AddSpellButton_Click" 
+                    Height="25"
+                    Content="Add Spell"
+                    >
+                    <Button.Background>
+                        <ImageBrush ImageSource="/Images/buttonOrange.png"/>
+                    </Button.Background>
+                </Button>
+
+                <Button 
+                    Foreground="AntiqueWhite"
+                    Style="{StaticResource MyButtonStyle}"
+                    MouseEnter="BtnGreen"
+                    MouseLeave="BtnOrange"
+                    Click="AddPlayerButton_Click" 
+                    Height="25"
+                    Content="Edit Player"
+                    >
+                    <Button.Background>
+                        <ImageBrush ImageSource="/Images/buttonOrange.png"/>
+                    </Button.Background>
+                </Button>
+
+                <Button 
+                    Foreground="AntiqueWhite"
+                    Style="{StaticResource MyButtonStyle}"
+                    MouseEnter="BtnGreen"
+                    MouseLeave="BtnOrange"
+                    Click="Refresh_Button_Click" 
+                    Height="25"
+                    Content="Refresh Player"
+                    >
+                    <Button.Background>
+                        <ImageBrush ImageSource="/Images/buttonOrange.png"/>
+                    </Button.Background>
+                </Button>
+                
             </StackPanel>
 
             <StackPanel Grid.Row="1">
@@ -211,12 +263,22 @@
                                 <Label Margin="0,0,16,0" HorizontalAlignment="Right" Grid.Row="1" Grid.Column="1" FontSize="20" FontFamily="/Fonts/#Kalam" Foreground="DarkBlue" Content="{Binding Level}"/>
                                 <Label Margin="10,0,0,8" FontSize="20" FontFamily="/Fonts/#Kalam" Foreground="DarkBlue" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Content="{Binding Description}"/>
 
-                                <Button Grid.Column="1" Grid.Row="2" Margin="0,0,16,8" Height="30" Width="50" HorizontalAlignment="Right" Tag ="{Binding Name}" Click="EditSpellButtonClick">
+                                <Button 
+                                    Grid.Column="1" Grid.Row="2" 
+                                    Margin="0,0,17,10" 
+                                    Height="28" Width="50" 
+                                    HorizontalAlignment="Right" 
+                                    Tag ="{Binding Name}" 
+                                    Click="EditSpellButtonClick"
+                                    Style="{StaticResource MyButtonStyle}"
+                                    MouseEnter="BtnEditGreen"
+                                    MouseLeave="BtnEdit"
+                                    >
                                     <Button.Background>
-                                        <ImageBrush ImageSource="/Images/edit.png"/>
+                                        <ImageBrush ImageSource="/Images/buttonEdit.png"/>
                                     </Button.Background>
                                 </Button>
-                                
+
                             </Grid>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
