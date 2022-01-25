@@ -1,6 +1,6 @@
 ﻿namespace SpellBook
 {
-    class SpellType
+    public class SpellType
     {
         public string primary;
         public string secondary;

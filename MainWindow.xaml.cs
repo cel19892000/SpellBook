@@ -67,20 +67,10 @@ namespace SpellBook
         public void SetFilterButtons()
         {
             PrimaryFilterList.Clear();
-            Filter allFilter = new Filter
-            {
-                Primary = "All",
-                Secondary = ""
-            };
-            PrimaryFilterList.Add(allFilter);
+            PrimaryFilterList.Add(new Filter { Primary = "All", Secondary = "" });
             List<Filter> originalTypeList = new List<Filter>();
-            for (int i = 0; i < SpellList.Count; i++)
-            {
-                Filter type = new Filter { Primary = new SpellType(SpellList[i].Type).primary, Secondary = ""};
-                originalTypeList.Add(type);
-            }
-            List<Filter> consolidatedTypeList = originalTypeList.Distinct().ToList();
-            PrimaryFilterList.AddRange(consolidatedTypeList);
+            SpellList.ForEach(spell => originalTypeList.Add(new Filter { Primary = new SpellType(spell.Type).primary, Secondary = "" }));
+            PrimaryFilterList.AddRange(originalTypeList.Distinct().ToList());
         }
 
         private void RefreshPrimaryFilterButtons()
@@ -105,14 +95,13 @@ namespace SpellBook
         {
             SecondaryFilterList.Clear();
             List<Filter> originalTypeList = new List<Filter>();
-            for (int i = 0; i < SpellList.Count; i++)
+            foreach(Spell spell in SpellList)
             {
-                Filter type = new Filter { Primary = new SpellType(SpellList[i].Type).primary, Secondary = new SpellType(SpellList[i].Type).secondary };
-                if ((type.Primary != null & type.Secondary != "") && primary.Equals(type.Primary))
-                        originalTypeList.Add(type);
+                Filter filter = new Filter(new SpellType(spell.Type));
+                if (filter.Secondary != "" && primary.Equals(filter.Primary))
+                    originalTypeList.Add(filter);
             }
-            List<Filter> consolidatedTypeList = originalTypeList.Distinct().ToList();
-            SecondaryFilterList.AddRange(consolidatedTypeList);
+            SecondaryFilterList.AddRange(originalTypeList.Distinct().ToList());
         }
 
         private static BitmapImage GetUrlImage(string imageUri)
@@ -194,45 +183,33 @@ namespace SpellBook
         private void AddPlayerButton_Click(object sender, RoutedEventArgs e) => addPlayerGrid.Visibility = Visibility.Visible;
         private void UsernameSearchButtonClick(object sender, RoutedEventArgs e)
         {
+            confirmPlayerButton.Visibility = Visibility.Hidden;
             mcUsernameLbl.Content = playerUrlEntry.Text;
-            string url = new PlayerFinder(playerUrlEntry.Text).url;
-            if (url == "Unknown")
+            PlayerFinder player = new PlayerFinder(playerUrlEntry.Text);
+
+            if (player.uuid == "Unknown")
             {
                 mcUUIDLbl.Content = "Invalid Minecraft Username";
                 knockturnNameLbl.Content = "";
-                confirmPlayerButton.Visibility = Visibility.Hidden;
             }
             else
             {
-                mcUUIDLbl.Content = new PlayerFinder(playerUrlEntry.Text).uuid;
-                HtmlDocument uuidDoc = sm.ImportSpellDataByUrl(url);
-                HtmlNodeCollection childNodes = uuidDoc.DocumentNode.SelectSingleNode("//*[@class=\"ui container\"]").ChildNodes;
-                foreach (var node in childNodes)
+                mcUUIDLbl.Content = player.uuid;
+                if (player.knockturnName == "Unknown")
                 {
-                    if (node.NodeType == HtmlNodeType.Element)
-                    {
-                        System.Diagnostics.Debug.WriteLine(node.Name);
-                        if (node.Name == "h2")
-                        {
-                            knockturnNameLbl.Content = "Unknown Player";
-                            confirmPlayerButton.Visibility = Visibility.Hidden;
-                            return;
-                        }
-                        else
-                        {
-                            knockturnNameLbl.Content = uuidDoc.DocumentNode.SelectSingleNode("//*[@class=\"ui segments\"]/div[1]/h2/text()").InnerText;
-                            confirmPlayerButton.Visibility = Visibility.Visible;
-                        }
-                    }
+                    knockturnNameLbl.Content = "Unknown Player";
+                }
+                else
+                {
+                    knockturnNameLbl.Content = player.knockturnName;
+                    confirmPlayerButton.Visibility = Visibility.Visible;
                 }
             }
         }
 
         private void PlayerSubmitBtn_Click(object sender, RoutedEventArgs e)
         {
-            profileURL = new PlayerFinder(playerUrlEntry.Text).url;
-            //Check
-            System.Diagnostics.Debug.WriteLine(profileURL);
+            profileURL = new PlayerFinder(playerUrlEntry.Text).GetPlayerUrl();
             sm.SavePlayer(profileURL);
             addPlayerGrid.Visibility = Visibility.Collapsed;
             RefreshHtmlDoc();
@@ -256,9 +233,7 @@ namespace SpellBook
         private void OnKeyDownSpellSearch(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Return)
-            {
                 SearchBoxEntry(SpellSearchBox.Text);
-            }
         }
 
         private void SearchBoxEntry(string spellName)
@@ -307,52 +282,41 @@ namespace SpellBook
 
         private void FilterSpellsByAll()
         {
-            for (int i = 0; i < SpellList.Count; i++)
-                DisplayedSpellList.Add(ConvertedSpell(i));
+            foreach (Spell spell in SpellList)
+                DisplayedSpellList.Add(ConvertedSpell(spell));
         }
 
         private void FilterSpellsByName()
         {
-            for (int i = 0; i < SpellList.Count; i++)
-            {
-                if (SpellList[i].Name.Contains(searchedSpell, StringComparison.OrdinalIgnoreCase))
-                    DisplayedSpellList.Add(ConvertedSpell(i));
-            }
+            foreach(Spell spell in SpellList) 
+                if (spell.Name.Contains(searchedSpell, StringComparison.OrdinalIgnoreCase))
+                    DisplayedSpellList.Add(ConvertedSpell(spell));
         }
 
-        public Spell ConvertedSpell(int i)
+        public Spell ConvertedSpell(Spell spell)
         {
             Spell newSpell;
             if (AreMovementsHidden)
-                newSpell = new Spell() { Name = SpellList[i].Name, Description = SpellList[i].Description, Type = SpellList[i].Type, Movements = "Hidden" };
+                newSpell = new Spell() { Name = spell.Name, Description = spell.Description, Type = spell.Type, Movements = "Hidden" };
             else
-                newSpell = new Spell() { Name = SpellList[i].Name, Description = SpellList[i].Description, Type = SpellList[i].Type, Movements = SpellList[i].Movements };
+                newSpell = new Spell() { Name = spell.Name, Description = spell.Description, Type = spell.Type, Movements = spell.Movements };
             return newSpell;
         }
 
         public void FilterSpellsByPrimaryType(string filter)
         {
-            for (int i = 0; i < SpellList.Count; i++)
-            {
-                string type = new SpellType(SpellList[i].Type).primary;
-                if (type == filter)
-                    DisplayedSpellList.Add(ConvertedSpell(i));
-            }
+            foreach (Spell spell in SpellList)
+                if(filter.Equals(new SpellType(spell.Type).primary))
+                    DisplayedSpellList.Add(ConvertedSpell(spell));
         }
 
         public void FilterSpellsBySecondaryType(string secondary)
         {
-            for (int i = 0; i < SpellList.Count; i++)
+            foreach (Spell spell in SpellList)
             {
-                string type = new SpellType(SpellList[i].Type).primary;
-                string subType = new SpellType(SpellList[i].Type).secondary;
-                if (subType != null)
-                {
-                    if (type.Equals(lastPrimaryFilterPressed) && subType.Equals(secondary))
-                    {
-                        DisplayedSpellList.Add(ConvertedSpell(i));
-                    }
-                }
+                SpellType spellType = new SpellType(spell.Type);
+                if (spellType.secondary != null && spellType.primary.Equals(lastPrimaryFilterPressed) && spellType.secondary.Equals(secondary))
+                    DisplayedSpellList.Add(ConvertedSpell(spell));
             }
         }
 
@@ -362,67 +326,26 @@ namespace SpellBook
             SpellList.Sort();
         }
 
-        public bool SpellExistsAlready(string spellName)
-        {
-            for (int i = 0; i < SpellList.Count; i++)
-            {
-                if (SpellList[i].Name.Equals(spellName, StringComparison.OrdinalIgnoreCase))
-                    return true;
-            }
-            return false;
-        }
-
+        public bool SpellExistsAlready(string spellName) => SpellList.Where(i => i.Name.Equals(spellName, StringComparison.OrdinalIgnoreCase)).Any();
 
         //Edit Spell Menu
         private void EditSpellButtonClick(object sender, RoutedEventArgs e)
         {
             editSpellGrid.Visibility = Visibility.Visible;
-            String spellName = (sender as Button).Tag.ToString();
-            DisplayEditableSpell(spellName);
+            foreach (Spell spell in SpellList)
+                if (spell.Name.Equals((sender as Button).Tag.ToString()))
+                    EditSpellBoxes(spell.Name, spell.Type, spell.Movements, spell.Description, SpellList.IndexOf(spell));
         }
 
-        public void DisplayEditableSpell(string searchedSpell)
-        {
-            int spellID = FindExactMatchingSpellID(searchedSpell);
-            if (spellID != 9999)
-                EditSpellBoxes(SpellList[spellID].Name, SpellList[spellID].Type, SpellList[spellID].Movements, SpellList[spellID].Description, spellID);
-            else
-                EditSpellBoxes("Spell Not Found", "", "", "", 9999);
-        }
-
-        public int FindExactMatchingSpellID(string searchedSpell)
-        {
-            for (int i = 0; i < SpellList.Count; i++)
-            {
-                if (SpellList[i].Name.Equals(searchedSpell))
-                    return i;
-            }
-            return 9999;
-        }
-
-        private void EditSpellCancelButton_Click(object sender, RoutedEventArgs e)
-        {
-            EditSpellBoxes("No Spell Selected", "", "", "", 9999);
-            editSpellGrid.Visibility = Visibility.Collapsed;
-        }
+        private void EditSpellCancelButton_Click(object sender, RoutedEventArgs e) => editSpellGrid.Visibility = Visibility.Collapsed;
 
         private void EditSpellSaveButton_Click(object sender, RoutedEventArgs e)
         {
-            int spellID = Convert.ToInt32(editSpellIDLbl.Content);
-            if (spellID != 9999)
-            {
-                Spell editedSpell = GatherSelectedSpell();
-                OverwriteSpell(editedSpell, spellID);
-                EditSpellBoxes("No Spell Selected", "", "", "", 9999);
-                editSpellGrid.Visibility = Visibility.Collapsed;
-                sm.SaveSpellList(SpellList);
-                RefreshPrimaryFilterButtons();
-                FilterAction(lastFilterPressed);
-            }
-            else
-            {
-                MessageBox.Show(Application.Current.MainWindow, "No Spell Selected", "Overwrite Failure", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            SpellList[Convert.ToInt32(editSpellIDLbl.Content)] = GatherSelectedSpell();
+            editSpellGrid.Visibility = Visibility.Collapsed;
+            sm.SaveSpellList(SpellList);
+            RefreshPrimaryFilterButtons();
+            FilterAction(lastFilterPressed);
         }
 
         private void EditSpellBoxes(string name, string type, string movements, string description, int id)
@@ -445,8 +368,6 @@ namespace SpellBook
             };
             return gatheredSpell;
         }
-
-        private void OverwriteSpell(Spell editedSpell, int spellID) => SpellList[spellID] = editedSpell;
 
         private void HideMovementsCheckBoxChanged(object sender, RoutedEventArgs e) => FilterAction(lastFilterPressed);
 

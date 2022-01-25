@@ -1,26 +1,40 @@
-﻿using System;
+﻿using HtmlAgilityPack;
+using System;
 using System.Net.Http;
 
 namespace SpellBook
 {
     public class PlayerFinder
     {
-        public string url;
+        readonly SaveManager sm = new SaveManager();
+
         public string uuid;
+        public string knockturnName = "";
 
         public PlayerFinder(string Username)
         {
-            url = GetPlayerUrl(Username);
             uuid = GetPlayerUUID(Username);
+
+            if (!uuid.Equals("Unknown"))
+            {
+                HtmlDocument uuidDoc = sm.ImportSpellDataByUrl(GetPlayerUrl());
+                HtmlNodeCollection childNodes = uuidDoc.DocumentNode.SelectSingleNode("//*[@class=\"ui container\"]").ChildNodes;
+                foreach (HtmlNode node in childNodes) if (node.NodeType == HtmlNodeType.Element)
+                {
+                    switch (node.Name)
+                    {
+                        case "h2":
+                            knockturnName = "Unknown";
+                            return;
+                        default:
+                            knockturnName = uuidDoc.DocumentNode.SelectSingleNode("//*[@class=\"ui segments\"]/div[1]/h2/text()").InnerText;
+                            break;
+                    }
+                }
+            }
         }
 
-        string GetPlayerUrl(string Username)
-        {
-            if (!GetPlayerUUID(Username).Equals("Unknown"))
-                return "http://profile.knockturnmc.com/player/" + GetPlayerUUID(Username);
-            else
-                return "Unknown";
-        }
+        public string GetPlayerUrl() => "http://profile.knockturnmc.com/player/" + uuid;
 
         static string GetPlayerUUID(string Username)
         {
@@ -39,8 +53,5 @@ namespace SpellBook
             HttpRequestMessage RequestMessage = new HttpRequestMessage(HttpMethod.Get, Url);
             return HttpClient.SendAsync(RequestMessage).Result.Content.ReadAsStringAsync().Result;
         }
-
     }
-
-    
 }

@@ -9,6 +9,12 @@ namespace SpellBook
 
         public Filter() { }
 
+        public Filter(SpellType type)
+        {
+            Primary = type.primary;
+            Secondary = type.secondary;
+        }
+
         public bool Equals(Filter other)
         {
             if (other is null) return false;
