@@ -1,6 +1,6 @@
 ﻿namespace SpellBook
 {
-    public class SpellType
+    /*public class SpellType
     {
         public string primary;
         public string secondary;
@@ -20,5 +20,5 @@
             
         }
 
-    }
+    }*/
 }

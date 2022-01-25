@@ -1,29 +1,60 @@
 ﻿using System;
 using System.Globalization;
+using System.Xml.Serialization;
 
 namespace SpellBook
 {
-    public class Spell : IEquatable<Spell> , IComparable<Spell>
+    public class DefaultSpell : Spell
     {
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string Type { get; set; }
-        public string Movements { get; set; }
-
+        public DefaultSpell() { }
+        
         private string _level = string.Empty;
-
-        public string Level
+        public override string Level
         {
-            get => new SpellProgress(Name, MainWindow.doc).level;
+            get => "Unknown";
             set => _level = value;
         }
 
         private double _percent = double.NaN;
-        public double Percent
+        public override double Percent 
         {
             get
             {
-                SpellProgress thisSpell = new SpellProgress(Name, MainWindow.doc);
+                return 0.0;
+            }
+            set
+            {
+                _percent = value;
+            }
+        }
+    }
+
+    [XmlRoot("NewSpell")]
+    [XmlInclude(typeof(DefaultSpell))]
+    public class Spell : IEquatable<Spell> , IComparable<Spell>
+    {
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public string Primary { get; set; }
+        public string Secondary { get; set; }
+        public string Movements { get; set; }
+
+        public Spell() { }
+
+        private string _level = string.Empty;
+
+        public virtual string Level
+        {
+            get => new SpellProgress(Name, MainWindow.data.KnockturnData).level;
+            set => _level = value;
+        }
+
+        private double _percent = double.NaN;
+        public virtual double Percent
+        {
+            get
+            {
+                SpellProgress thisSpell = new SpellProgress(Name, MainWindow.data.KnockturnData);
                 double percentage = Convert.ToDouble(thisSpell.percentage, new CultureInfo("en-US"));
                 return percentage;
             }
@@ -32,8 +63,6 @@ namespace SpellBook
                 _percent = value;
             }
         }
-
-        public Spell() { }
 
         public override bool Equals(object obj)
         {

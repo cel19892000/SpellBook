@@ -6,35 +6,38 @@ using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using HtmlAgilityPack;
 using System.Windows.Input;
-using System.IO;
 
 namespace SpellBook
 {
     public partial class MainWindow : Window
     {
+        readonly SaveManager sm = new SaveManager();
+
         public MainWindow()
         {
             InitializeComponent();
-            LoadPlayer();
-            SpellList = sm.LoadSpellList();
-            SetFilterButtons();
+            data = sm.Load();
+            RefreshHtmlDoc();
             RefreshPlayerData();
-            sm.SaveSpellList(SpellList);
+            SetFilterButtons();
             FilterAction(lastFilterPressed);
+            SetSources();
+            sm.Save(data);
+        }
+
+        public void SetSources()
+        {
             SpellView.ItemsSource = DisplayedSpellList;
             PrimaryFilterControl.ItemsSource = PrimaryFilterList;
             SecondaryFilterControl.ItemsSource = SecondaryFilterList;
         }
 
-        readonly SaveManager sm = new SaveManager();
-
-        public List<Spell> SpellList = new List<Spell>();
         public List<Spell> DisplayedSpellList = new List<Spell>();
         public List<Filter> PrimaryFilterList = new List<Filter>();
         public List<Filter> SecondaryFilterList = new List<Filter>();
 
-        public string profileURL;
-        public static HtmlDocument doc;
+        public static SaveData data = new SaveData();
+
         public string lastPrimaryFilterPressed = "";
         public string lastSecondaryFilterPressed = "";
         public string lastFilterPressed = "All";
@@ -69,7 +72,7 @@ namespace SpellBook
             PrimaryFilterList.Clear();
             PrimaryFilterList.Add(new Filter { Primary = "All", Secondary = "" });
             List<Filter> originalTypeList = new List<Filter>();
-            SpellList.ForEach(spell => originalTypeList.Add(new Filter { Primary = new SpellType(spell.Type).primary, Secondary = "" }));
+            data.SpellList.ForEach(spell => originalTypeList.Add(new Filter { Primary = spell.Primary, Secondary = "" }));
             PrimaryFilterList.AddRange(originalTypeList.Distinct().ToList());
         }
 
@@ -95,9 +98,9 @@ namespace SpellBook
         {
             SecondaryFilterList.Clear();
             List<Filter> originalTypeList = new List<Filter>();
-            foreach(Spell spell in SpellList)
+            foreach(Spell spell in data.SpellList)
             {
-                Filter filter = new Filter(new SpellType(spell.Type));
+                Filter filter = new Filter { Primary = spell.Primary, Secondary = spell.Secondary };
                 if (filter.Secondary != "" && primary.Equals(filter.Primary))
                     originalTypeList.Add(filter);
             }
@@ -115,15 +118,8 @@ namespace SpellBook
 
         public void RefreshHtmlDoc()
         {
-            try
-            {
-                doc = sm.ImportSpellData();
-                sm.SaveSpellData(doc);
-            }
-            catch
-            {
-                doc = sm.LoadSpellData();
-            }
+            data.KnockturnData = sm.ImportSpellDataByUrl(data.PlayerUrl);
+            sm.Save(data);
         }
 
         public void RefreshPlayerData()
@@ -134,7 +130,7 @@ namespace SpellBook
             houseLbl.Content = player.House;
             pointsLbl.Content = player.HousePoints;
             PlayerImage.Source = GetUrlImage(player.PlayerImageSource);
-            TotalSpellsLbl.Content = SpellList.Count;
+            TotalSpellsLbl.Content = data.SpellList.Count;
         }
 
         private void Refresh_Button_Click(object sender, RoutedEventArgs e) => RefreshPlayerData();
@@ -145,14 +141,15 @@ namespace SpellBook
             {
                 Name = spellNameEntry.Text,
                 Description = spellDescriptionEntry.Text,
-                Type = spellTypeEntry.Text,
+                Primary = spellPrimaryEntry.Text,
+                Secondary = spellSecondaryEntry.Text,
                 Movements = spellMovementsEntry.Text
             };
 
             if (!SpellExistsAlready(newSpell.Name))
             {
-                SpellList.Add(newSpell);
-                sm.SaveSpellList(SpellList);
+                data.SpellList.Add(newSpell);
+                sm.Save(data);
                 ClearSpellEntry();
                 addSpellGrid.Visibility = Visibility.Collapsed;
                 RefreshPrimaryFilterButtons();
@@ -176,7 +173,8 @@ namespace SpellBook
         {
             spellNameEntry.Text = "";
             spellMovementsEntry.Text = "";
-            spellTypeEntry.Text = "";
+            spellPrimaryEntry.Text = "";
+            spellSecondaryEntry.Text = "";
             spellDescriptionEntry.Text = "";
         }
 
@@ -209,8 +207,8 @@ namespace SpellBook
 
         private void PlayerSubmitBtn_Click(object sender, RoutedEventArgs e)
         {
-            profileURL = new PlayerFinder(playerUrlEntry.Text).GetPlayerUrl();
-            sm.SavePlayer(profileURL);
+            data.PlayerUrl = new PlayerFinder(playerUrlEntry.Text).GetPlayerUrl();
+            sm.Save(data);
             addPlayerGrid.Visibility = Visibility.Collapsed;
             RefreshHtmlDoc();
             RefreshPlayerData();
@@ -219,15 +217,7 @@ namespace SpellBook
 
         private void PlayerCancelBtn_Click(object sender, RoutedEventArgs e) => addPlayerGrid.Visibility = Visibility.Collapsed;
 
-        public void LoadPlayer()
-        {
-            profileURL = sm.LoadPlayer();
-            sm.SavePlayer(profileURL);
-            RefreshHtmlDoc();
-        }
-
         //Spell Filtering
-
         private void SpellSearchButton_Click(object sender, RoutedEventArgs e) => SearchBoxEntry(SpellSearchBox.Text);
 
         private void OnKeyDownSpellSearch(object sender, KeyEventArgs e)
@@ -282,13 +272,13 @@ namespace SpellBook
 
         private void FilterSpellsByAll()
         {
-            foreach (Spell spell in SpellList)
+            foreach (Spell spell in data.SpellList)
                 DisplayedSpellList.Add(ConvertedSpell(spell));
         }
 
         private void FilterSpellsByName()
         {
-            foreach(Spell spell in SpellList) 
+            foreach(Spell spell in data.SpellList) 
                 if (spell.Name.Contains(searchedSpell, StringComparison.OrdinalIgnoreCase))
                     DisplayedSpellList.Add(ConvertedSpell(spell));
         }
@@ -297,25 +287,37 @@ namespace SpellBook
         {
             Spell newSpell;
             if (AreMovementsHidden)
-                newSpell = new Spell() { Name = spell.Name, Description = spell.Description, Type = spell.Type, Movements = "Hidden" };
+                newSpell = new Spell() 
+                { 
+                    Name = spell.Name, 
+                    Description = spell.Description,
+                    Primary = spell.Primary,
+                    Secondary = spell.Secondary,
+                    Movements = "Hidden" 
+                };
             else
-                newSpell = new Spell() { Name = spell.Name, Description = spell.Description, Type = spell.Type, Movements = spell.Movements };
+                newSpell = new Spell() { 
+                    Name = spell.Name, 
+                    Description = spell.Description,
+                    Primary = spell.Primary,
+                    Secondary = spell.Secondary,
+                    Movements = spell.Movements 
+                };
             return newSpell;
         }
 
         public void FilterSpellsByPrimaryType(string filter)
         {
-            foreach (Spell spell in SpellList)
-                if(filter.Equals(new SpellType(spell.Type).primary))
+            foreach (Spell spell in data.SpellList)
+                if(filter.Equals(spell.Primary))
                     DisplayedSpellList.Add(ConvertedSpell(spell));
         }
 
         public void FilterSpellsBySecondaryType(string secondary)
         {
-            foreach (Spell spell in SpellList)
+            foreach (Spell spell in data.SpellList)
             {
-                SpellType spellType = new SpellType(spell.Type);
-                if (spellType.secondary != null && spellType.primary.Equals(lastPrimaryFilterPressed) && spellType.secondary.Equals(secondary))
+                if (spell.Secondary != null && spell.Primary.Equals(lastPrimaryFilterPressed) && spell.Secondary.Equals(secondary))
                     DisplayedSpellList.Add(ConvertedSpell(spell));
             }
         }
@@ -323,35 +325,36 @@ namespace SpellBook
         public void ClearSpellBook()
         {
             RefreshHtmlDoc();
-            SpellList.Sort();
+            data.SpellList.Sort();
         }
 
-        public bool SpellExistsAlready(string spellName) => SpellList.Where(i => i.Name.Equals(spellName, StringComparison.OrdinalIgnoreCase)).Any();
+        public bool SpellExistsAlready(string spellName) => data.SpellList.Where(i => i.Name.Equals(spellName, StringComparison.OrdinalIgnoreCase)).Any();
 
         //Edit Spell Menu
         private void EditSpellButtonClick(object sender, RoutedEventArgs e)
         {
             editSpellGrid.Visibility = Visibility.Visible;
-            foreach (Spell spell in SpellList)
+            foreach (Spell spell in data.SpellList)
                 if (spell.Name.Equals((sender as Button).Tag.ToString()))
-                    EditSpellBoxes(spell.Name, spell.Type, spell.Movements, spell.Description, SpellList.IndexOf(spell));
+                    EditSpellBoxes(spell.Name, spell.Primary, spell.Secondary, spell.Movements, spell.Description, data.SpellList.IndexOf(spell));
         }
 
         private void EditSpellCancelButton_Click(object sender, RoutedEventArgs e) => editSpellGrid.Visibility = Visibility.Collapsed;
 
         private void EditSpellSaveButton_Click(object sender, RoutedEventArgs e)
         {
-            SpellList[Convert.ToInt32(editSpellIDLbl.Content)] = GatherSelectedSpell();
+            data.SpellList[Convert.ToInt32(editSpellIDLbl.Content)] = GatherSelectedSpell();
             editSpellGrid.Visibility = Visibility.Collapsed;
-            sm.SaveSpellList(SpellList);
+            sm.Save(data);
             RefreshPrimaryFilterButtons();
             FilterAction(lastFilterPressed);
         }
 
-        private void EditSpellBoxes(string name, string type, string movements, string description, int id)
+        private void EditSpellBoxes(string name, string primary, string secondary, string movements, string description, int id)
         {
             editSpellNameBox.Text = name;
-            editSpellTypeBox.Text = type;
+            editSpellPrimaryBox.Text = primary;
+            editSpellSecondaryBox.Text = secondary;
             editSpellMovementsBox.Text = movements;
             editSpellDescriptionBox.Text = description;
             editSpellIDLbl.Content = id;
@@ -363,7 +366,8 @@ namespace SpellBook
             {
                 Name = editSpellNameBox.Text,
                 Description = editSpellDescriptionBox.Text,
-                Type = editSpellTypeBox.Text,
+                Primary = editSpellPrimaryBox.Text,
+                Secondary = editSpellSecondaryBox.Text,
                 Movements = editSpellMovementsBox.Text
             };
             return gatheredSpell;

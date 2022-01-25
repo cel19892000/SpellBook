@@ -1,120 +1,123 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Xml.Serialization;
 using HtmlAgilityPack;
 
 namespace SpellBook
 {
+    public class SaveData
+    {
+        public string PlayerUrl { get; set; }
+        public double SpellBookVersion { get; set; }
+        public List<Spell> SpellList { get; set; }
+        public HtmlDocument KnockturnData { get; set; }
+        public SaveData() { }
+    }
+
+    public class NonHtmlData
+    {
+        public string PlayerUrl { get; set; }
+        public double SpellBookVersion { get; set; }
+        public List<Spell> SpellList { get; set; }
+        public NonHtmlData() { }
+    }
+    
+    
     public class SaveManager
     {
+        public double currentVersion = 0.1;
         public string path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SpellBook");
-        public string playerSaveFile = "Player.xml";
-        public string defaultPlayer = "http://profile.knockturnmc.com/player/49f1ee42-854c-45cb-bc6b-e307ed0bc8e7";
-        public string spellListSaveFile = "SpellList.xml";
-        public string spellDataSaveFile = "SpellData.html";
-
+        public string spellBookData = "SpellBookData.xml";
+        public string KnockturnHtml = "KnockturnData.html";
+        
         public string FilePath(string fileName) => System.IO.Path.Combine(path, fileName);
 
-        public void SavePlayer(string profileURL)
+        public void Save(SaveData data)
         {
             DirectoryInfo info = new DirectoryInfo(path);
             if (!info.Exists)
                 info.Create();
-            System.Xml.Serialization.XmlSerializer writer = new System.Xml.Serialization.XmlSerializer(typeof(string));
-            System.IO.FileStream file = System.IO.File.Create(FilePath(playerSaveFile));
-            writer.Serialize(file, profileURL);
-            file.Close();
+
+            
+            NonHtmlData nonHtmlData = new NonHtmlData() 
+            { 
+                PlayerUrl = data.PlayerUrl, 
+                SpellBookVersion = data.SpellBookVersion, 
+                SpellList = data.SpellList 
+            };
+
+            XmlSerializer serializer = new XmlSerializer(typeof(NonHtmlData));
+            FileStream SpellBookFile = File.Create(FilePath(spellBookData));
+            serializer.Serialize(SpellBookFile, nonHtmlData);
+            SpellBookFile.Close();
+
+            FileStream KnockturnFile = File.Create(FilePath(KnockturnHtml));
+            data.KnockturnData.Save(KnockturnFile);
+            KnockturnFile.Close();
+
         }
 
-        public string LoadPlayer()
+        public SaveData Load()
         {
-            if (File.Exists(FilePath(playerSaveFile)))
+            HtmlDocument loadedDoc = new HtmlDocument();
+            if (File.Exists(FilePath(KnockturnHtml)))
             {
-                System.Xml.Serialization.XmlSerializer reader = new System.Xml.Serialization.XmlSerializer(typeof(string));
-                System.IO.StreamReader file = new System.IO.StreamReader(FilePath(playerSaveFile));
-                string profileURL = (string)reader.Deserialize(file);
-                file.Close();
-                return profileURL;
+                FileStream KnockturnFile = new FileStream(FilePath(KnockturnHtml), FileMode.Open);
+                loadedDoc.Load(KnockturnFile);
+                KnockturnFile.Close();
             }
             else
             {
-                return defaultPlayer;
+                loadedDoc = ImportSpellDataByUrl(defaultPlayerUrl);
             }
-        }
 
-        public void SaveSpellList(List<Spell> SpellList)
-        {
-            DirectoryInfo info = new DirectoryInfo(path);
-            if (!info.Exists)
-                info.Create();
-            System.Xml.Serialization.XmlSerializer writer = new System.Xml.Serialization.XmlSerializer(typeof(List<Spell>));
-            System.IO.FileStream file = System.IO.File.Create(FilePath(spellListSaveFile));
-            writer.Serialize(file, SpellList);
-            file.Close();
-        }
-
-        public List<Spell> LoadSpellList()
-        {
-            if (File.Exists(FilePath(spellListSaveFile)))
+            if (File.Exists(FilePath(spellBookData)))
             {
-                System.Xml.Serialization.XmlSerializer reader = new System.Xml.Serialization.XmlSerializer(typeof(List<Spell>));
-                System.IO.StreamReader file = new System.IO.StreamReader(FilePath(spellListSaveFile));
-                List<Spell> SpellList = (List<Spell>)reader.Deserialize(file);
-                file.Close();
-                return SpellList;
+                XmlSerializer reader = new XmlSerializer(typeof(NonHtmlData));
+                StreamReader SpellBookFile = new StreamReader(FilePath(spellBookData));
+                NonHtmlData nonHtmlData = (NonHtmlData)reader.Deserialize(SpellBookFile);
+                SpellBookFile.Close();
+
+                return new SaveData()
+                {
+                    PlayerUrl = nonHtmlData.PlayerUrl,
+                    SpellBookVersion = nonHtmlData.SpellBookVersion,
+                    SpellList = nonHtmlData.SpellList,
+                    KnockturnData = loadedDoc
+                };
             }
             else
             {
-                 return StartUpSpellList();
+                Save(DefaultSaveData(loadedDoc));
+                return DefaultSaveData(loadedDoc);
             }
         }
-
-        public List<Spell> StartUpSpellList()
+        public string defaultPlayerUrl = "http://profile.knockturnmc.com/player/49f1ee42-854c-45cb-bc6b-e307ed0bc8e7";
+        public SaveData DefaultSaveData(HtmlDocument loadedDoc)
         {
-            List<Spell> SpellList = new List<Spell>
+            return new SaveData()
             {
-                new Spell() 
-                { 
-                    Name = "Lumos", 
-                    Type = "Charm", 
-                    Description = "Casts light around the player", 
+                PlayerUrl = defaultPlayerUrl,
+                SpellBookVersion = currentVersion,
+                KnockturnData = loadedDoc,
+                SpellList = DefaultSpellList()
+            };
+        }
+
+        public List<Spell> DefaultSpellList()
+        {
+            return new List<Spell>
+            {
+                new DefaultSpell()
+                {
+                    Name = "Lumos",
+                    Primary = "Charm",
+                    Secondary = "",
+                    Description = "Casts light around the player",
                     Movements = "Up"
                 }
             };
-
-            return SpellList;
-        }
-
-        public void SaveSpellData(HtmlDocument doc)
-        {
-            DirectoryInfo info = new DirectoryInfo(path);
-            if (!info.Exists)
-                info.Create();
-
-            FileStream sw = new FileStream(FilePath(spellDataSaveFile), FileMode.Create);
-            doc.Save(sw);
-            sw.Close();
-        }
-
-        public HtmlDocument LoadSpellData()
-        {
-            HtmlDocument doc = new HtmlDocument();
-
-            if (File.Exists(FilePath(spellDataSaveFile)))
-            {
-                FileStream sw = new FileStream(FilePath(spellDataSaveFile), FileMode.Open);
-                doc.Load(sw);
-                sw.Close();
-            }
-
-            return doc;
-        }
-
-        public HtmlDocument ImportSpellData()
-        {
-            var web = new HtmlAgilityPack.HtmlWeb();
-            HtmlDocument doc = web.Load(LoadPlayer());
-            return doc;
         }
 
         public HtmlDocument ImportSpellDataByUrl(string url)
@@ -126,7 +129,5 @@ namespace SpellBook
         }
 
     }
-
-    
 
 }

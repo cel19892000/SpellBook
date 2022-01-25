@@ -135,7 +135,10 @@
                                 </Grid.ColumnDefinitions>
 
                                 <Label Margin="10,8,0,0" FontSize="20" FontFamily="/Fonts/#Kalam" Foreground="DarkBlue" Grid.Row="0" Grid.Column="0" Content="{Binding Name}"/>
-                                <Label HorizontalAlignment="Right" Margin="0,8,16,0" FontSize="20" FontFamily="/Fonts/#Kalam" Foreground="DarkBlue" Grid.Row="0" Grid.Column="1" Content="{Binding Type}"/>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,16,0" Grid.Row="0" Grid.Column="1">
+                                    <Label FontSize="20" FontFamily="/Fonts/#Kalam" Foreground="DarkBlue" Content="{Binding Primary}"/>
+                                    <Label FontSize="20" FontFamily="/Fonts/#Kalam" Foreground="DarkBlue" Content="{Binding Secondary}"/>
+                                </StackPanel>
                                 <Label Margin="10,0,0,0" FontSize="20" FontFamily="/Fonts/#Kalam" Foreground="DarkBlue" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Content="{Binding Movements}"/>
                                 <ProgressBar Margin="0,0,16,0" Grid.Row="1" Grid.Column="1" Value="{Binding Percent}" Height="30"/>
                                 <Label Margin="0,0,16,0" HorizontalAlignment="Right" Grid.Row="1" Grid.Column="1" FontSize="20" FontFamily="/Fonts/#Kalam" Foreground="DarkBlue" Content="{Binding Level}"/>
@@ -172,7 +175,11 @@
                         <Label FontSize="20">Spell Category</Label>
                         <Label FontSize="12" VerticalAlignment="Bottom">*Case and Spelling Sensitive</Label>
                     </StackPanel>
-                    <TextBox x:Name="spellTypeEntry" FontSize="20"></TextBox>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBox x:Name="spellPrimaryEntry" FontSize="20" Width="200"></TextBox>
+                        <TextBox x:Name="spellSecondaryEntry" FontSize="20" Width="200"></TextBox>
+                    </StackPanel>
+                    
                     <Label FontSize="12">- Make SubGroups with the format Primary>Secondary with no spaces</Label>
                 
                     <Label FontSize="20">Spell Description</Label>
@@ -187,7 +194,7 @@
             
             </Grid>
         
-            <Grid x:Name="addPlayerGrid" Grid.Row="0" Background="AntiqueWhite" Grid.RowSpan="2" Margin="60" Visibility="Visible">
+            <Grid x:Name="addPlayerGrid" Grid.Row="0" Background="AntiqueWhite" Grid.RowSpan="2" Margin="60" Visibility="Collapsed">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="5*"/>
                     <RowDefinition Height="40*"/>
@@ -247,7 +254,10 @@
                     <Label>Spell Name</Label>
                     <TextBox x:Name="editSpellNameBox">No Spell Selected</TextBox>
                     <Label>Spell Type</Label>
-                    <TextBox x:Name="editSpellTypeBox"></TextBox>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBox x:Name="editSpellPrimaryBox" FontSize="20" Width="200"></TextBox>
+                        <TextBox x:Name="editSpellSecondaryBox" FontSize="20" Width="200"></TextBox>
+                    </StackPanel>
                     <Label>Spell Movements</Label>
                     <TextBox x:Name="editSpellMovementsBox"></TextBox>
                     <Label>Spell Description</Label>
