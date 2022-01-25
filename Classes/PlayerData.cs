@@ -2,12 +2,9 @@
 {
     public class PlayerData
     {
-        //readonly SpellProgress sp = new SpellProgress();
-
         public PlayerData() { }
 
         private string _name = string.Empty;
-
         public string Name
         {
             get

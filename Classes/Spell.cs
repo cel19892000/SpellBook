@@ -18,14 +18,8 @@ namespace SpellBook
         private double _percent = double.NaN;
         public override double Percent 
         {
-            get
-            {
-                return 0.0;
-            }
-            set
-            {
-                _percent = value;
-            }
+            get { return 0.0; }
+            set { _percent = value; }
         }
     }
 
@@ -42,7 +36,6 @@ namespace SpellBook
         public Spell() { }
 
         private string _level = string.Empty;
-
         public virtual string Level
         {
             get => new SpellProgress(Name, MainWindow.data.KnockturnData).level;
@@ -58,10 +51,7 @@ namespace SpellBook
                 double percentage = Convert.ToDouble(thisSpell.percentage, new CultureInfo("en-US"));
                 return percentage;
             }
-            set
-            {
-                _percent = value;
-            }
+            set { _percent = value; }
         }
 
         public override bool Equals(object obj)

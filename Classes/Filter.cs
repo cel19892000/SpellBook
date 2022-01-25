@@ -9,12 +9,6 @@ namespace SpellBook
 
         public Filter() { }
 
-        //public Filter(SpellType type)
-        //{
-        //    Primary = type.primary;
-        //    Secondary = type.secondary;
-        //}
-
         public bool Equals(Filter other)
         {
             if (other is null) return false;
@@ -24,14 +18,8 @@ namespace SpellBook
 
         public override int GetHashCode()
         {
-
-            //Get hash code for the Name field if it is not null.
             int hashProductName = Primary == null ? 0 : Primary.GetHashCode();
-
-            //Get hash code for the Code field.
             int hashProductCode = Secondary == null ? 0 : Secondary.GetHashCode();
-
-            //Calculate the hash code for the product.
             return hashProductName ^ hashProductCode;
         }
 

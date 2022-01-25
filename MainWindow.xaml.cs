@@ -4,7 +4,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
-using HtmlAgilityPack;
 using System.Windows.Input;
 
 namespace SpellBook
@@ -296,7 +295,8 @@ namespace SpellBook
                     Movements = "Hidden" 
                 };
             else
-                newSpell = new Spell() { 
+                newSpell = new Spell()
+                {
                     Name = spell.Name, 
                     Description = spell.Description,
                     Primary = spell.Primary,
@@ -374,8 +374,6 @@ namespace SpellBook
         }
 
         private void HideMovementsCheckBoxChanged(object sender, RoutedEventArgs e) => FilterAction(lastFilterPressed);
-
-        
 
     }
 }
