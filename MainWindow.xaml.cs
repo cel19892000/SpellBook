@@ -431,5 +431,14 @@ namespace SpellBook
             else
                 editSpellSecondaryEntry.Text = "";
         }
+
+        private void DeleteSpellClick(object sender, RoutedEventArgs e)
+        {
+            data.SpellList.RemoveAt(Convert.ToInt32(editSpellNameBox.Tag));
+            editSpellGrid.Visibility = Visibility.Collapsed;
+            sm.Save(data);
+            RefreshPrimaryFilterButtons();
+            FilterAction(lastFilterPressed);
+        }
     }
 }

@@ -83,4 +83,11 @@
         </Setter>
     </Style>
 
+    <Style x:Key="SpellLabelStyle" TargetType="Label">
+        <Setter Property="FontFamily" Value="/Fonts/#Kalam"/>
+        <Setter Property="Foreground" Value="DarkBlue"/>
+        <Setter Property="FontSize" Value="20"/>
+        <Setter Property="FontWeight" Value="DemiBold"/>
+    </Style>
+    
 </ResourceDictionary>
