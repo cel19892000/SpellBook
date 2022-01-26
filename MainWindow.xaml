@@ -136,7 +136,12 @@
                                     <Label Style="{StaticResource SpellLabelStyle}" Content="{Binding Secondary}"/>
                                 </StackPanel>
                                 <Label Margin="14,0,0,0" Style="{StaticResource SpellLabelStyle}" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Content="{Binding Movements}"/>
-                                <ProgressBar Margin="0,0,16,0" Grid.Row="1" Grid.Column="1" Value="{Binding Percent}" Height="30"/>
+                                <ProgressBar Margin="0,0,16,0" Grid.Row="1" Grid.Column="1" BorderThickness="0" Value="{Binding Percent}" Height="30">
+                                    <ProgressBar.Background>
+                                        <SolidColorBrush Color="RosyBrown" Opacity="0.5"/>
+                                    </ProgressBar.Background>
+                                    
+                                </ProgressBar>
                                 <Label Margin="0,2,16,0" HorizontalAlignment="Right" Grid.Row="1" Grid.Column="1" Style="{StaticResource SpellLabelStyle}" Content="{Binding Level}"/>
                                 <Label Margin="14,0,0,8" Style="{StaticResource SpellLabelStyle}" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Content="{Binding Description}"/>
 
