@@ -29,6 +29,10 @@ namespace SpellBook
             SpellView.ItemsSource = DisplayedSpellList;
             PrimaryFilterControl.ItemsSource = PrimaryFilterList;
             SecondaryFilterControl.ItemsSource = SecondaryFilterList;
+            primaryTypeEntry.ItemsSource = PrimaryFilterList;
+            secondaryTypeEntry.ItemsSource = SecondaryFilterList;
+            editPrimaryTypeEntry.ItemsSource = PrimaryFilterList;
+            editSecondaryTypeEntry.ItemsSource = SecondaryFilterList;
         }
 
         public List<Spell> DisplayedSpellList = new List<Spell>();
@@ -160,7 +164,14 @@ namespace SpellBook
             }
         }
 
-        private void AddSpellButton_Click(object sender, RoutedEventArgs e) => addSpellGrid.Visibility = Visibility.Visible;
+        private void AddSpellButton_Click(object sender, RoutedEventArgs e)
+        {
+            addSpellGrid.Visibility = Visibility.Visible;
+            primaryTypeEntry.Items.Refresh();
+            secondaryTypeEntry.Items.Refresh();
+            primaryTypeEntry.SelectedItem = null;
+            secondaryTypeEntry.SelectedItem = null;
+        }
 
         private void SpellCancelBtn_Click(object sender, RoutedEventArgs e)
         {
@@ -343,7 +354,7 @@ namespace SpellBook
 
         private void EditSpellSaveButton_Click(object sender, RoutedEventArgs e)
         {
-            data.SpellList[Convert.ToInt32(editSpellIDLbl.Content)] = GatherSelectedSpell();
+            data.SpellList[Convert.ToInt32(editSpellNameBox.Tag)] = GatherSelectedSpell();
             editSpellGrid.Visibility = Visibility.Collapsed;
             sm.Save(data);
             RefreshPrimaryFilterButtons();
@@ -353,11 +364,17 @@ namespace SpellBook
         private void EditSpellBoxes(string name, string primary, string secondary, string movements, string description, int id)
         {
             editSpellNameBox.Text = name;
-            editSpellPrimaryBox.Text = primary;
-            editSpellSecondaryBox.Text = secondary;
+            editSpellNameBox.Tag = id;
+            editSpellPrimaryEntry.Text = primary;
+            editSpellSecondaryEntry.Text = secondary;
             editSpellMovementsBox.Text = movements;
             editSpellDescriptionBox.Text = description;
-            editSpellIDLbl.Content = id;
+
+            editPrimaryTypeEntry.Items.Refresh();
+            editPrimaryTypeEntry.SelectedItem = new Filter { Primary = primary, Secondary = ""};
+            SetSecondaryFilterButtons(primary);
+            editSecondaryTypeEntry.Items.Refresh();
+            editSecondaryTypeEntry.SelectedItem = new Filter { Primary = primary, Secondary = secondary };
         }
 
         private Spell GatherSelectedSpell()
@@ -366,8 +383,8 @@ namespace SpellBook
             {
                 Name = editSpellNameBox.Text,
                 Description = editSpellDescriptionBox.Text,
-                Primary = editSpellPrimaryBox.Text,
-                Secondary = editSpellSecondaryBox.Text,
+                Primary = editSpellPrimaryEntry.Text,
+                Secondary = editSpellSecondaryEntry.Text,
                 Movements = editSpellMovementsBox.Text
             };
             return gatheredSpell;
@@ -375,5 +392,44 @@ namespace SpellBook
 
         private void HideMovementsCheckBoxChanged(object sender, RoutedEventArgs e) => FilterAction(lastFilterPressed);
 
+        private void PrimaryTypeEntry_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (primaryTypeEntry.SelectedItem != null)
+            {
+                spellPrimaryEntry.Text = (primaryTypeEntry.SelectedItem as Filter).Primary;
+                SetSecondaryFilterButtons((primaryTypeEntry.SelectedItem as Filter).Primary);
+            }
+            else
+                spellPrimaryEntry.Text = "";
+            secondaryTypeEntry.Items.Refresh();
+        }
+
+        private void SecondaryTypeEntry_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (secondaryTypeEntry.SelectedItem != null)
+                spellSecondaryEntry.Text = (secondaryTypeEntry.SelectedItem as Filter).Secondary;
+            else
+                spellSecondaryEntry.Text = "";
+        }
+
+        private void EditPrimaryTypeEntry_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (editPrimaryTypeEntry.SelectedItem != null)
+            {
+                editSpellPrimaryEntry.Text = (editPrimaryTypeEntry.SelectedItem as Filter).Primary;
+                SetSecondaryFilterButtons((editPrimaryTypeEntry.SelectedItem as Filter).Primary);
+            }
+            else
+                editSpellPrimaryEntry.Text = "";
+            editSecondaryTypeEntry.Items.Refresh();
+        }
+
+        private void EditSecondaryTypeEntry_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (editSecondaryTypeEntry.SelectedItem != null)
+                editSpellSecondaryEntry.Text = (editSecondaryTypeEntry.SelectedItem as Filter).Secondary;
+            else
+                editSpellSecondaryEntry.Text = "";
+        }
     }
 }

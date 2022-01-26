@@ -16,6 +16,7 @@
     <None Remove="Images\buttonPurple.png" />
     <None Remove="Images\buttonRed.png" />
     <None Remove="Images\leather.png" />
+    <None Remove="Images\menuPanel.png" />
     <None Remove="Images\spellPanelBackground.png" />
   </ItemGroup>
 
@@ -33,6 +34,7 @@
     <Resource Include="Images\buttonPurple.png" />
     <Resource Include="Images\buttonRed.png" />
     <Resource Include="Images\leather.png" />
+    <Resource Include="Images\menuPanel.png" />
     <Resource Include="Images\spellPanelBackground.png" />
   </ItemGroup>
 

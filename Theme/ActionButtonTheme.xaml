@@ -33,7 +33,8 @@
             </Setter.Value>
         </Setter>
         <Setter Property="Width" Value="200"/>
-        <Setter Property="Margin" Value="8,2,8,4"/>
+        <Setter Property="Height" Value="60"/>
+        <Setter Property="Margin" Value="10,2,10,45"/>
         <Setter Property="Foreground" Value="AntiqueWhite"/>
         <Setter Property="FontSize" Value="20"/>
     </Style>
@@ -69,7 +70,8 @@
             </Setter.Value>
         </Setter>
         <Setter Property="Width" Value="200"/>
-        <Setter Property="Margin" Value="8,2,8,4"/>
+        <Setter Property="Height" Value="60"/>
+        <Setter Property="Margin" Value="10,2,10,45"/>
         <Setter Property="Foreground" Value="AntiqueWhite"/>
         <Setter Property="FontSize" Value="20"/>
     </Style>

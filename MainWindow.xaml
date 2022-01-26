@@ -50,7 +50,6 @@
                 <Grid.Background>
                     <ImageBrush ImageSource="/Images/leather.png" />
                 </Grid.Background>
-
                 <Grid.RowDefinitions>
                     <RowDefinition Height="20*"/>
                     <RowDefinition Height="10*"/>
@@ -84,29 +83,26 @@
                 </Grid>
 
                 <Grid Grid.Row="1">
-
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1*"/>
-                        <ColumnDefinition Width="160"/>
+                        <ColumnDefinition Width="200"/>
                         <ColumnDefinition Width="80"/>
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Orientation="Horizontal">
                         <Label Content="Total Spells: " Margin="2,0,0,0" Style="{StaticResource InfoLabelStyle}"/>
-                        <Label x:Name="TotalSpellsLbl" Content="0" Margin="0,0,10,0" Style="{StaticResource InfoLabelStyle}"/>
+                        <Label x:Name="TotalSpellsLbl" Content="0" Margin="0,0,20,0" Style="{StaticResource InfoLabelStyle}"/>
 
                         <CheckBox 
-                            Content="Hide Movements"
-                            Foreground="AntiqueWhite" 
-                            VerticalContentAlignment="Center"
                             IsChecked="{Binding ElementName=SpellBookWindow, Path=AreMovementsHidden}"
                             Checked="HideMovementsCheckBoxChanged"
                             Unchecked="HideMovementsCheckBoxChanged"
-                        ></CheckBox>
+                            Style="{StaticResource InfoCheckBoxStyle}"
+                        />
                     </StackPanel>
 
-                    <TextBox x:Name="SpellSearchBox" Grid.Column="1" Height="20" KeyDown="OnKeyDownSpellSearch"></TextBox>
-                    <Button x:Name="SpellSearchButton" Grid.Column="2" Width="60" Height="20" Click="SpellSearchButton_Click">Search</Button>
+                    <TextBox x:Name="SpellSearchBox" Grid.Column="1" Height="24" KeyDown="OnKeyDownSpellSearch"></TextBox>
+                    <Button x:Name="SpellSearchButton" Grid.Column="2" Click="SpellSearchButton_Click" Style="{StaticResource SearchButtonStyle}"/>
 
                 </Grid>
 
@@ -151,58 +147,86 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </ScrollViewer>
-            
 
-            <Grid x:Name="addSpellGrid" Grid.Row="0" Background="AntiqueWhite" Grid.RowSpan="2" Margin="60" Visibility="Collapsed">
+            <Grid x:Name="addSpellGrid" Visibility="Collapsed" Style="{StaticResource menuGridStyle}">
+
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="5*"/>
+                    <RowDefinition Height="94"/>
                     <RowDefinition Height="40*"/>
-                    <RowDefinition Height="5*"/>
+                    <RowDefinition Height="110"/>
                 </Grid.RowDefinitions>
-                
-            
-                <Label Grid.Row="0" HorizontalAlignment="Center" FontSize="20">Add Spell</Label>
 
-                <StackPanel Grid.Row="1">
+                <Label Content="Add Spell" Style="{StaticResource menuHeaderStyle}"/>
 
-                    <Label FontSize="20">Spell Name</Label>
+                <StackPanel Grid.Row="1" Margin="50, 0, 50, 0">
+                    
+                    <Label Style="{StaticResource menuLabelStyle}">Spell Name</Label>
                     <TextBox x:Name="spellNameEntry" FontSize="20"></TextBox>
-                
-                    <Label FontSize="20">Spell Movements</Label>
+                    <Label Style="{StaticResource menuLabelStyle}">Spell Movements</Label>
                     <TextBox x:Name="spellMovementsEntry" FontSize="20"></TextBox>
 
                     <StackPanel Orientation="Horizontal">
-                        <Label FontSize="20">Spell Category</Label>
-                        <Label FontSize="12" VerticalAlignment="Bottom">*Case and Spelling Sensitive</Label>
+                        <Label Style="{StaticResource menuLabelStyle}">Spell Category</Label>
+                        <Label FontSize="12" VerticalAlignment="Bottom" Foreground="AntiqueWhite">*Case and Spelling Sensitive</Label>
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBox x:Name="spellPrimaryEntry" FontSize="20" Width="200"></TextBox>
-                        <TextBox x:Name="spellSecondaryEntry" FontSize="20" Width="200"></TextBox>
-                    </StackPanel>
-                    
-                    <Label FontSize="12">- Make SubGroups with the format Primary>Secondary with no spaces</Label>
-                
-                    <Label FontSize="20">Spell Description</Label>
-                    <TextBox x:Name="spellDescriptionEntry" FontSize="20"></TextBox>
-                
-                </StackPanel>
 
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Vertical">
+                            <Label Content="Primary" HorizontalAlignment="Center" Style="{StaticResource menuLabelStyle}"/>
+                            <TextBox x:Name="spellPrimaryEntry" FontSize="16" Width="200"/>
+                            <ComboBox x:Name="primaryTypeEntry" Width="200" SelectionChanged="PrimaryTypeEntry_SelectionChanged">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Primary}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+                        
+                        <StackPanel Orientation="Vertical" Grid.Column="1">
+                            <Label Content="Secondary" HorizontalAlignment="Center" Style="{StaticResource menuLabelStyle}"/>
+                            <TextBox x:Name="spellSecondaryEntry" FontSize="16" Width="200"></TextBox>
+                            <ComboBox x:Name="secondaryTypeEntry" Width="200" SelectionChanged="SecondaryTypeEntry_SelectionChanged">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Secondary}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+                        
+                    </Grid>
+                    
+                    <Label Style="{StaticResource menuLabelStyle}">Spell Description</Label>
+                    <TextBox x:Name="spellDescriptionEntry" FontSize="20"></TextBox>
+                    
+                </StackPanel>
+                
                 <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
                     <Button Content="Cancel" Click="SpellCancelBtn_Click" Style="{StaticResource ActionButtonStyleRed}"/>
                     <Button Content="Save" Click="SpellSubmitBtn_Click" Style="{StaticResource ActionButtonStyleGreen}"/>
                 </StackPanel>
-            
+                
             </Grid>
-        
-            <Grid x:Name="addPlayerGrid" Grid.Row="0" Background="AntiqueWhite" Grid.RowSpan="2" Margin="60" Visibility="Collapsed">
+
+            <Grid x:Name="addPlayerGrid" Visibility="Collapsed" Style="{StaticResource menuGridStyle}">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="5*"/>
+                    <RowDefinition Height="94"/>
                     <RowDefinition Height="40*"/>
-                    <RowDefinition Height="5*"/>
+                    <RowDefinition Height="110"/>
                 </Grid.RowDefinitions>
 
-                <Label Grid.Row="0" HorizontalAlignment="Center" FontSize="20">Add Player Data</Label>
-                <Grid Grid.Row="1">
+                <Label Content="Edit Player" Style="{StaticResource menuHeaderStyle}"/>
+
+                <Grid Grid.Row="1" Margin="50, 0, 50, 0">
                     
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="160"/>
@@ -210,26 +234,26 @@
                     </Grid.ColumnDefinitions>
                     
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="100"/>
+                        <RowDefinition Height="120"/>
                         <RowDefinition Height="1*"/>
                     </Grid.RowDefinitions>
                     
                     <StackPanel Grid.Column="0" Grid.ColumnSpan="2">
-                        <Label FontSize="20">Minecraft Username</Label>
+                        <Label Style="{StaticResource menuLabelStyle}">Minecraft Username</Label>
                         <TextBox x:Name="playerUrlEntry" FontSize="20"></TextBox>
-                        <Button Click="UsernameSearchButtonClick">Search</Button>
+                        <Button Click="UsernameSearchButtonClick" FontSize="20">Search</Button>
                     </StackPanel>
                     
                     <StackPanel Grid.Column="0" Grid.Row="1">
-                        <Label Height="32" FontSize="16">Minecraft Username:</Label>
-                        <Label Height="32" FontSize="16">Minecraft UUID:</Label>
-                        <Label Height="32" FontSize="16">Knockturn Name:</Label>
+                        <Label Style="{StaticResource menuLabelStyle}" FontSize="16">Minecraft Username:</Label>
+                        <Label Style="{StaticResource menuLabelStyle}" FontSize="16">Minecraft UUID:</Label>
+                        <Label Style="{StaticResource menuLabelStyle}" FontSize="16">Knockturn Name:</Label>
                     </StackPanel>
                     
                     <StackPanel Grid.Column="1" Grid.Row="1">
-                        <Label x:Name="mcUsernameLbl" Height="32" FontSize="16">username</Label>
-                        <Label x:Name="mcUUIDLbl" Height="32" FontSize="16">uuid</Label>
-                        <Label x:Name="knockturnNameLbl" Height="32" FontSize="16">name</Label>
+                        <Label x:Name="mcUsernameLbl" Style="{StaticResource menuLabelStyle}" FontSize="16">username</Label>
+                        <Label x:Name="mcUUIDLbl" Style="{StaticResource menuLabelStyle}" FontSize="16">uuid</Label>
+                        <Label x:Name="knockturnNameLbl" Style="{StaticResource menuLabelStyle}" FontSize="16">name</Label>
                     </StackPanel>
 
                 </Grid>
@@ -241,31 +265,64 @@
             
             </Grid>
 
-            <Grid x:Name="editSpellGrid" Grid.Row="0" Background="AntiqueWhite" Grid.RowSpan="2" Margin="60" Visibility="Collapsed">
+            <Grid x:Name="editSpellGrid" Visibility="Collapsed" Style="{StaticResource menuGridStyle}">
+                
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="6*"/>
-                    <RowDefinition Height="50*"/>
-                    <RowDefinition Height="7*"/>
+                    <RowDefinition Height="94"/>
+                    <RowDefinition Height="40*"/>
+                    <RowDefinition Height="110"/>
                 </Grid.RowDefinitions>
 
-                <Label Grid.Row="0" HorizontalAlignment="Center" FontSize="20">Edit Spell</Label>
+                <Label Content="Edit Spell" Style="{StaticResource menuHeaderStyle}"/>
 
-                <StackPanel Grid.Row="1">
-                    <Label>Spell Name</Label>
-                    <TextBox x:Name="editSpellNameBox">No Spell Selected</TextBox>
-                    <Label>Spell Type</Label>
+                <StackPanel Grid.Row="1" Margin="50, 0, 50, 0">
+                    <Label Content="Spell Name" Style="{StaticResource menuLabelStyle}"/>
+                    <TextBox x:Name="editSpellNameBox" FontSize="20"/>
+                    <Label Content="Spell Movements" Style="{StaticResource menuLabelStyle}"/>
+                    <TextBox x:Name="editSpellMovementsBox" FontSize="20"/>
+
                     <StackPanel Orientation="Horizontal">
-                        <TextBox x:Name="editSpellPrimaryBox" FontSize="20" Width="200"></TextBox>
-                        <TextBox x:Name="editSpellSecondaryBox" FontSize="20" Width="200"></TextBox>
+                        <Label Content="Spell Category" Style="{StaticResource menuLabelStyle}"/>
+                        <Label FontSize="12" VerticalAlignment="Bottom" Foreground="AntiqueWhite">*Case and Spelling Sensitive</Label>
                     </StackPanel>
-                    <Label>Spell Movements</Label>
-                    <TextBox x:Name="editSpellMovementsBox"></TextBox>
-                    <Label>Spell Description</Label>
-                    <TextBox x:Name="editSpellDescriptionBox"></TextBox>
-                    <StackPanel Orientation="Horizontal">
-                        <Label>Spell Identifier</Label>
-                        <Label x:Name="editSpellIDLbl">9999</Label>
-                    </StackPanel>
+                    
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Vertical">
+                            <Label Content="Primary" HorizontalAlignment="Center" Style="{StaticResource menuLabelStyle}"/>
+                            <TextBox x:Name="editSpellPrimaryEntry" FontSize="16" Width="200"/>
+                            <ComboBox x:Name="editPrimaryTypeEntry" Width="200" SelectionChanged="EditPrimaryTypeEntry_SelectionChanged">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Primary}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Vertical" Grid.Column="1">
+                            <Label Content="Secondary" HorizontalAlignment="Center" Style="{StaticResource menuLabelStyle}"/>
+                            <TextBox x:Name="editSpellSecondaryEntry" FontSize="16" Width="200"></TextBox>
+                            <ComboBox x:Name="editSecondaryTypeEntry" Width="200" SelectionChanged="EditSecondaryTypeEntry_SelectionChanged">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Secondary}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+                    </Grid>
+
+                    <Label Content="Spell Description" Style="{StaticResource menuLabelStyle}"/>
+                    <TextBox x:Name="editSpellDescriptionBox" FontSize="20"/>
+
                 </StackPanel>
 
                 <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
@@ -276,6 +333,7 @@
             </Grid>
 
         </Grid>
+        
     </DockPanel>
 
 </Window>
