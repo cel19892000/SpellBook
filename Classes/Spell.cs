@@ -49,7 +49,7 @@ namespace SpellBook
             {
                 SpellProgress thisSpell = new SpellProgress(Name, MainWindow.data.KnockturnData);
                 double percentage = Convert.ToDouble(thisSpell.percentage, new CultureInfo("en-US"));
-                return percentage;
+                return (-0.005 * (percentage * percentage)) + (1.5 * percentage);
             }
             set { _percent = value; }
         }
